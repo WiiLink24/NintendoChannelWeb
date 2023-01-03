@@ -1,0 +1,52 @@
+{# Variable 'sidebar_menu' is used to add custom items to this page's sidebar menu. #}
+
+{% macro menu_item(name, redirect_func, icon_name) %}
+    <ul class="menu-list">
+        <li>
+            <a
+                href="{{ url_for(redirect_func) }}"
+                {% if url_for(request.endpoint, **request.view_args).startswith(url_for(redirect_func)) %}
+                    class="is-active"
+                {% endif %}
+            >
+                <i class="navigation-list-item fas {{ icon_name }}"></i>{{ name }}
+            </a>
+        </li>
+
+        {% if url_for(request.endpoint, **request.view_args).startswith(url_for(redirect_func)) %}
+            {% if sidebar_menu %}
+                {{ sidebar_menu }}
+            {% endif %}
+        {% endif %}
+    </ul>
+{% endmacro %}
+
+<aside class="menu">
+    {% if current_user.is_authenticated %}
+    <p class="menu-label">
+        General
+    </p>
+    {{ menu_item('Dashboard', 'thegateway.admin', 'fa-home') }}
+    <p class="menu-label">
+        Management
+    </p>
+    {{ menu_item('Videos', 'thegateway.list_videos', 'fa-video') }}
+    <p class="menu-label">
+        Account
+    </p>
+    {{ menu_item('Add User', 'thegateway.new_user', 'fa-user') }}
+    {{ menu_item('Change Password', 'thegateway.change_password', 'fa-key') }}
+    <ul class="menu-list">
+        <li><a href="{{ url_for('thegateway.logout') }}"><i class="fas fa-sign-out-alt" style="margin-right: .75em; width: 1em; height: 1em;"></i>Logout</a></li>
+    </ul>
+    {% else %}
+    <p class="menu-label">
+        I don't have a witty remark this time
+    </p>
+    <ul class="menu-list">
+        <figure class="image is-2by3">
+            <img src="/static/images/loginbo.png">
+        </figure>
+    </ul>
+    {% endif %}
+</aside>

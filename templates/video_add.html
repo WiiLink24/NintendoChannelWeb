@@ -1,0 +1,50 @@
+{% extends "generic/base.html" %}
+
+{% block title %}
+    Upload a Movie
+{% endblock %}
+
+{% block content %}
+    <form action="" method="post" enctype="multipart/form-data">
+        <p>
+            {{ form.hidden_tag() }}
+            {{ form.video_type.label(class_="label") }}
+            <div class="control has-icons-left">
+                {{ form.hidden_tag() }}
+                <div class="select" id="video_type">
+                    {{ form.video_type }}
+                </div>
+            </div>
+            <br>
+            {{ form.video.label(class_="label") }} {{ form.video(size=32) }}
+            <br>
+            <br>
+            <div class="columns">
+                <div class="column">
+                    {{ form.title_jpn.label(class_="label") }} {{ form.title_jpn(class_="input") }}
+                    <br>
+                    <br>
+                    {{ form.title_en.label(class_="label") }} {{ form.title_en(class_="input") }}
+                    <br>
+                    <br>
+                    {{ form.title_de.label(class_="label") }} {{ form.title_de(class_="input") }}
+                </div>
+                <div class="column">
+                    {{ form.title_es.label(class_="label") }} {{ form.title_es(class_="input") }}
+                    <br>
+                    <br>
+                    {{ form.title_fr.label(class_="label") }} {{ form.title_fr(class_="input") }}
+                    <br>
+                    <br>
+                    {{ form.title_it.label(class_="label") }} {{ form.title_it(class_="input") }}
+                </div>
+                <div class="column">
+                    {{ form.title_dutch.label(class_="label") }} {{ form.title_dutch(class_="input") }}
+                </div>
+            </div>
+            {{ form.thumbnail.label(class_="label") }} {{ form.thumbnail(size=32) }}
+        </p>
+        <br>
+        <p>{{ form.upload(class_="button is-success") }}</p>
+    </form>
+{% endblock %}

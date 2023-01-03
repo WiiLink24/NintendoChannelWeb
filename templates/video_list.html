@@ -1,0 +1,82 @@
+{% extends "generic/base_manage.html" %}
+
+{% block type_name %}movies{% endblock %}
+{% block type_name_singular %}movie{% endblock %}
+
+{% block table_listing %}
+    <br>
+    <a href="{{ url_for('thegateway.admin') }}">Return to the Main Menu</a>
+    <table class="table is-fullwidth is-hoverable is-striped">
+        <thead>
+        <tr>
+            <th scope="col">Video ID</th>
+            <th scope="col">Name (English)</th>
+            <th scope="col">Length</th>
+            <th scope="col">Thumbnail</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for video in videos.items %}
+            <tr>
+                <td>{{ video.id }}</td>
+                <td>{{ video.name_english }}</td>
+                <td>{{ video.length }}</td>
+                <td><img src="{{ url_for('thegateway.get_video_thumbnail', movie_id=video.id) }}"
+                         alt="Thumbnail for {{ video.id }}"/></td>
+                <td>
+                    <div class="field has-addons">
+                        <p class="control">
+                            <a href=""
+                               class="button is-danger">
+                                <span class="icon is-small">
+                                    <i class="fas fa-trash"></i>
+                                </span>
+                                <span>Delete</span>
+                            </a>
+                        </p>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block add_footer %}
+    <!-- Previous/Next -->
+    {% if videos.has_prev %}
+        <a href="{{ url_for('thegateway.list_videos', page=movies.prev_num) }}">&lt; Previous</a>
+    {% else %}
+        &lt; Previous
+    {% endif %}
+    |
+    {% if videos.has_next %}
+        <a href="{{ url_for('thegateway.list_videos', page=movies.next_num) }}">Next &gt;</a>
+    {% else %}
+        Next &gt;
+    {% endif %}
+    <br/>
+
+    <!-- First/Last -->
+    <!-- Ensure we are not on the first page. -->
+    {% if videos.page != 1 %}
+        <a href="{{ url_for('thegateway.list_videos', page=1) }}">&lt;&lt; First</a>
+    {% else %}
+        &lt;&lt; First
+    {% endif %}
+    |
+    <!-- Ensure we are not on the last page. -->
+    {% if videos.page != videos.pages %}
+        <a href="{{ url_for('thegateway.list_videos', page=videos.pages) }}">Last &gt;&gt;</a>
+    {% else %}
+        Last &gt;&gt;
+    {% endif %}
+
+    <br/>
+    <a href="{{ url_for('thegateway.add_video') }}">
+        <button class="button is-success">
+            <span>Add a Video</span>
+        </button>
+    </a>
+{% endblock %}

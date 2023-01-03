@@ -1,0 +1,15 @@
+{% extends "generic/base.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block content %}
+    <h1 class="title">Welcome, {{ current_user.username }}.</h1>
+    <h2 class="subtitle">Click on an operation below to get started:</h2>
+    <p class="buttons" style="display: block">
+        <a href="{{ url_for('thegateway.logout') }}">
+            <button class="button is-danger">Logout</button>
+        </a>
+    </p>
+{% endblock %}

@@ -25,7 +25,7 @@ def get_review():
     for rec in recommendations:
         # #OfRecs\nGameID,ConsoleType,?,Gender,Age,Percentage,Appeal,Mood,WithFriends,0...
         rec: Recommendations
-        body_string += f"{rec.game_id},RVL,0,{rec.gender},{rec.age},{rec.recommendation_percent},{rec.appeal},{rec.gaming_mood},{rec.friend_or_alone},0"
+        body_string += f"{rec.game_id},RVL,0,{rec.gender},{rec.age},{rec.recommendation_percent},{rec.appeal},{rec.gaming_mood},{rec.friend_or_alone},0\n"
 
     resp = Response(body_string)
     resp.headers["X-FJHIEK"] = "0"

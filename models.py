@@ -41,7 +41,7 @@ class Videos(db.Model):
 class TimePlayed(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True, unique=True)
     serial_number = db.Column(db.String)
-    game_id = db.Column(db.String(4))
+    game_id = db.Column(db.String(6))
     times_played = db.Column(db.Integer())
     time_played = db.Column(db.Integer())
 
@@ -49,7 +49,7 @@ class TimePlayed(db.Model):
 class Recommendations(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True, unique=True)
     serial_number = db.Column(db.String)
-    game_id = db.Column(db.String(4))
+    game_id = db.Column(db.String(6))
     gender = db.Column(db.Integer)
     age = db.Column(db.Integer)
     recommendation_percent = db.Column(db.Integer)

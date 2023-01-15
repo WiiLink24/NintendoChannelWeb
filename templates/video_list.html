@@ -46,13 +46,13 @@
 {% block add_footer %}
     <!-- Previous/Next -->
     {% if videos.has_prev %}
-        <a href="{{ url_for('thegateway.list_videos', page=movies.prev_num) }}">&lt; Previous</a>
+        <a href="{{ url_for('thegateway.list_videos', page=videos.prev_num) }}">&lt; Previous</a>
     {% else %}
         &lt; Previous
     {% endif %}
     |
     {% if videos.has_next %}
-        <a href="{{ url_for('thegateway.list_videos', page=movies.next_num) }}">Next &gt;</a>
+        <a href="{{ url_for('thegateway.list_videos', page=videos.next_num) }}">Next &gt;</a>
     {% else %}
         Next &gt;
     {% endif %}

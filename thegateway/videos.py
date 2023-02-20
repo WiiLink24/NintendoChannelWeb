@@ -15,7 +15,7 @@ def list_videos():
 
     # We want at most 20 movies per page.
     videos = Videos.query.order_by(Videos.id.asc()).paginate(
-        page_num, 20, error_out=False
+        page=page_num, per_page=20, error_out=False
     )
 
     return render_template(

@@ -13,7 +13,7 @@ def config():
 @cgi_blueprint.post("/6/cgi-bin/bookmark.cgi")
 def bookmark():
     resp = Response()
-    resp.headers["X-FJHIEK"] = "0"
+    resp.headers["X-RESULT"] = "0"
     return resp
 
 
@@ -28,7 +28,7 @@ def get_review():
         body_string += f"{rec.game_id},RVL,0,{rec.gender},{rec.age},{rec.recommendation_percent},{rec.appeal},{rec.gaming_mood},{rec.friend_or_alone},0\n"
 
     resp = Response(body_string)
-    resp.headers["X-FJHIEK"] = "0"
+    resp.headers["X-RESULT"] = "0"
     return resp
 
 
@@ -41,7 +41,7 @@ def delete_review():
     db.session.commit()
 
     resp = Response()
-    resp.headers["X-FJHIEK"] = "0"
+    resp.headers["X-RESULT"] = "0"
     return resp
 
 
@@ -92,7 +92,7 @@ def store_time_played():
         db.session.commit()
 
     resp = Response()
-    resp.headers["X-FJHIEK"] = "0"
+    resp.headers["X-RESULT"] = "0"
     return resp
 
 
@@ -132,6 +132,6 @@ def review():
     db.session.commit()
 
     resp = Response()
-    resp.headers["X-FJHIEK"] = "0"
+    resp.headers["X-RESULT"] = "0"
     return resp
 

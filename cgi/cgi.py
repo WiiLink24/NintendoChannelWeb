@@ -1,6 +1,8 @@
 from models import db, TimePlayed, Recommendations
 from flask import Response, request, Blueprint
 
+import urllib.parse
+
 cgi_blueprint = Blueprint("cgi", __name__)
 
 
@@ -13,6 +15,7 @@ def config():
 @cgi_blueprint.post("/6/cgi-bin/bookmark.cgi")
 def bookmark():
     resp = Response()
+    resp.headers["X-FJHIEK"] = "0"
     resp.headers["X-RESULT"] = "0"
     return resp
 
@@ -25,9 +28,10 @@ def get_review():
     for rec in recommendations:
         # #OfRecs\nGameID,ConsoleType,?,Gender,Age,Percentage,Appeal,Mood,WithFriends,0...
         rec: Recommendations
-        body_string += f"{rec.game_id},RVL,0,{rec.gender},{rec.age},{rec.recommendation_percent},{rec.appeal},{rec.gaming_mood},{rec.friend_or_alone},0\n"
+        body_string += f"{rec.game_id},RVL,0,{rec.gender},{rec.age},{rec.recommendation_percent},{rec.appeal},{rec.gaming_mood},{rec.friend_or_alone},0"
 
     resp = Response(body_string)
+    resp.headers["X-FJHIEK"] = "0"
     resp.headers["X-RESULT"] = "0"
     return resp
 
@@ -41,6 +45,7 @@ def delete_review():
     db.session.commit()
 
     resp = Response()
+    resp.headers["X-FJHIEK"] = "0"
     resp.headers["X-RESULT"] = "0"
     return resp
 
@@ -59,7 +64,9 @@ def store_time_played():
         if i == 0:
             continue
 
-        game_id = string.split("%2C")[0]
+        # It is possible for a game ID to not resolve to a proper ID.
+        # In this case it is in a URL Encoded string.
+        game_id = urllib.parse.unquote(string.split("%2C")[0])
         time_played = time_string_to_minutes(string.split("%2C")[2])
 
         try:
@@ -92,6 +99,7 @@ def store_time_played():
         db.session.commit()
 
     resp = Response()
+    resp.headers["X-FJHIEK"] = "0"
     resp.headers["X-RESULT"] = "0"
     return resp
 
@@ -132,6 +140,7 @@ def review():
     db.session.commit()
 
     resp = Response()
+    resp.headers["X-FJHIEK"] = "0"
     resp.headers["X-RESULT"] = "0"
     return resp
 

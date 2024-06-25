@@ -26,15 +26,30 @@ class VideoType(enum.Enum):
     def choices(cls):
         return [(choice.value, choice.name) for choice in cls]
 
+
 class VideoForm(FlaskForm):
     video = FileField("Video", validators=[FileRequired()])
-    title_jpn = StringField("Title (Japanese)", validators=[DataRequired(), Length(max=102)])
-    title_en = StringField("Title (English)", validators=[DataRequired(), Length(max=102)])
-    title_de = StringField("Title (German)", validators=[DataRequired(), Length(max=102)])
-    title_es = StringField("Title (Spanish)", validators=[DataRequired(), Length(max=102)])
-    title_fr = StringField("Title (French)", validators=[DataRequired(), Length(max=102)])
-    title_it = StringField("Title (Italian)", validators=[DataRequired(), Length(max=102)])
-    title_dutch = StringField("Title (Dutch)", validators=[DataRequired(), Length(max=102)])
+    title_jpn = StringField(
+        "Title (Japanese)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_en = StringField(
+        "Title (English)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_de = StringField(
+        "Title (German)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_es = StringField(
+        "Title (Spanish)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_fr = StringField(
+        "Title (French)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_it = StringField(
+        "Title (Italian)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_dutch = StringField(
+        "Title (Dutch)", validators=[DataRequired(), Length(max=102)]
+    )
     video_type = SelectField("Video Type", choices=VideoType.choices())
     thumbnail = FileField("Video thumbnail", validators=[FileRequired()])
     upload = SubmitField("Add Video")

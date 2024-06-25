@@ -3,6 +3,7 @@ from sqlalchemy import func
 
 db = SQLAlchemy()
 
+
 class Videos(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True, unique=True)
     name_japanese = db.Column(db.String(102))

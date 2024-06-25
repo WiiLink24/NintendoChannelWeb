@@ -22,7 +22,9 @@ def bookmark():
 
 @cgi_blueprint.post("/6/cgi-bin/getreview.cgi")
 def get_review():
-    recommendations = Recommendations.query.filter_by(serial_number=request.form.get("serialNumber")).all()
+    recommendations = Recommendations.query.filter_by(
+        serial_number=request.form.get("serialNumber")
+    ).all()
 
     body_string = str(len(recommendations)) + "\n"
     for rec in recommendations:
@@ -38,7 +40,9 @@ def get_review():
 
 @cgi_blueprint.post("/6/cgi-bin/delreview.cgi")
 def delete_review():
-    recommendations = Recommendations.query.filter_by(serial_number=request.form.get("serialNumber")).all()
+    recommendations = Recommendations.query.filter_by(
+        serial_number=request.form.get("serialNumber")
+    ).all()
     for rec in recommendations:
         db.session.delete(rec)
 
@@ -88,7 +92,7 @@ def store_time_played():
                 serial_number=serial_number,
                 game_id=game_id,
                 times_played=values[1],
-                time_played=values[0]
+                time_played=values[0],
             )
 
             db.session.add(db_time_played)
@@ -143,4 +147,3 @@ def review():
     resp.headers["X-FJHIEK"] = "0"
     resp.headers["X-RESULT"] = "0"
     return resp
-

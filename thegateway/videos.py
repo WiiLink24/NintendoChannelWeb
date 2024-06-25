@@ -1,10 +1,18 @@
 from models import db, Videos
-from flask import url_for, flash, render_template, redirect, request, send_from_directory
+from flask import (
+    url_for,
+    flash,
+    render_template,
+    redirect,
+    request,
+    send_from_directory,
+)
 from thegateway import thegateway_blueprint
 from thegateway.mobiclip import validate_mobiclip, save_video_data, get_mobiclip_length
 from thegateway.form import VideoForm
 from thegateway.admin import oidc
 from werkzeug.utils import redirect
+
 
 @thegateway_blueprint.route("/thegateway/videos/")
 @oidc.require_login

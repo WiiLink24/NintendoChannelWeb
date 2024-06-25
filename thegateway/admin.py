@@ -7,14 +7,17 @@ import config
 
 oidc = OpenIDConnect()
 
+
 @thegateway_blueprint.record_once
 def on_load(state):
     # Initialize OpenIDConnect with the current app context
     oidc.init_app(state.app)
 
+
 @thegateway_blueprint.app_context_processor
 def inject_oidc():
     return dict(oidc=oidc)
+
 
 @thegateway_blueprint.route("/thegateway")
 @thegateway_blueprint.route("/thegateway/")
@@ -29,6 +32,7 @@ def login():
 
     return render_template("login.html")
 
+
 @thegateway_blueprint.route("/thegateway/logout")
 @oidc.require_login
 def logout():
@@ -42,5 +46,3 @@ def logout():
 @oidc.require_login
 def admin():
     return render_template("gateway.html")
-
-

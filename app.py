@@ -1,5 +1,5 @@
-from flask import Flask, send_from_directory
-from models import db, login
+from flask import Flask
+from models import db
 from cgi.cgi import cgi_blueprint
 from thegateway import thegateway_blueprint
 from werkzeug.serving import WSGIRequestHandler
@@ -11,19 +11,19 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = config.db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = config.secret_key
+app.config["OIDC_CLIENT_SECRETS"] = config.oidc_client_secrets_json
+app.config["OIDC_SCOPES"] = "openid profile"
+app.config["OIDC_OVERWRITE_REDIRECT_URI"] = config.oidc_redirect_uri
 
 db.init_app(app)
-login.init_app(app)
 
 app.register_blueprint(cgi_blueprint)
 app.register_blueprint(thegateway_blueprint)
 app.register_blueprint(channel_static_blueprint)
 
-@app.before_first_request
-def initialize_server():
+with app.app_context():
     # Ensure our database is present.
     db.create_all()
-
 
 db.configure_mappers()
 

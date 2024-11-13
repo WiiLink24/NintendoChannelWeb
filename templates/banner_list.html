@@ -1,0 +1,50 @@
+{% extends "generic/base_manage.html" %}
+
+{% block type_name %}banners{% endblock %}
+{% block type_name_singular %}banner{% endblock %}
+
+{% block table_listing %}
+    <br>
+    <a href="{{ url_for('thegateway.admin') }}">Return to the Main Menu</a>
+    <table class="table is-fullwidth is-hoverable is-striped">
+        <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name (English)</th>
+            <th scope="col">Image</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for banner in banners.items %}
+            <tr>
+                <td>{{ banner.id }}</td>
+                <td>{{ banner.name_english }}</td>
+                <td><img src="{{ url_for('thegateway.get_banner_thumbnail', banner_id=banner.id) }}"
+                         alt="Thumbnail for {{ banner.id }}"/></td>
+                <td>
+                    <div class="field has-addons">
+                        <p class="control">
+                            <a href="{{ url_for('thegateway.remove_movie', banner_id=banner.id) }}"
+                               class="button is-danger">
+                                <span class="icon is-small">
+                                    <i class="fas fa-trash"></i>
+                                </span>
+                                <span>Delete</span>
+                            </a>
+                        </p>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block add_footer %}
+    <a href="{{ url_for('thegateway.add_banner') }}">
+        <button class="button is-success">
+            <span>Add an Image</span>
+        </button>
+    </a>
+{% endblock %}

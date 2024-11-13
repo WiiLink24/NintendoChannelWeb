@@ -36,3 +36,14 @@ class Recommendations(db.Model):
     appeal = db.Column(db.Integer)
     gaming_mood = db.Column(db.Integer)
     friend_or_alone = db.Column(db.Integer)
+
+
+class Banners(db.Model):
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True, unique=True)
+    name_japanese = db.Column(db.String(102))
+    name_english = db.Column(db.String(102))
+    name_german = db.Column(db.String(102))
+    name_french = db.Column(db.String(102))
+    name_spanish = db.Column(db.String(102))
+    name_italian = db.Column(db.String(102))
+    name_dutch = db.Column(db.String(102))

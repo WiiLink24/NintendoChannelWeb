@@ -7,6 +7,10 @@ def video_thumbnail_encode(infile: bytes) -> bytes:
     return generic_encode(infile, 96, 72)
 
 
+def banner_encode(infile: bytes) -> bytes:
+    return generic_encode(infile, 128, 48)
+
+
 def generic_encode(in_bytes: bytes, w: int, h: int) -> bytes:
     """Encodes an image to a format suitable for the Wii."""
     ImageFile.LOAD_TRUNCATED_IMAGES = True

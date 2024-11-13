@@ -53,3 +53,34 @@ class VideoForm(FlaskForm):
     video_type = SelectField("Video Type", choices=VideoType.choices())
     thumbnail = FileField("Video thumbnail", validators=[FileRequired()])
     upload = SubmitField("Add Video")
+
+
+class BannerForm(FlaskForm):
+    title_jpn = StringField(
+        "Title (Japanese)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_en = StringField(
+        "Title (English)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_de = StringField(
+        "Title (German)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_es = StringField(
+        "Title (Spanish)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_fr = StringField(
+        "Title (French)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_it = StringField(
+        "Title (Italian)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_dutch = StringField(
+        "Title (Dutch)", validators=[DataRequired(), Length(max=102)]
+    )
+    thumbnail = FileField("Image", validators=[FileRequired()])
+    upload = SubmitField("Add")
+
+
+class DeleteForm(FlaskForm):
+    given_id = StringField("ID", validators=[DataRequired()])
+    submit = SubmitField("Delete")

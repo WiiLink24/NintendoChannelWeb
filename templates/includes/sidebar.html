@@ -31,13 +31,14 @@
         Management
     </p>
     {{ menu_item('Videos', 'thegateway.list_videos', 'fa-video') }}
+    {{ menu_item('Banners', 'thegateway.list_banners', 'fa-signs-post') }}
     <p class="menu-label">
         Account
     </p>
     <ul class="menu-list">
         <li><a href="{{ url_for('thegateway.logout') }}"><i class="fas fa-sign-out-alt" style="margin-right: .75em; width: 1em; height: 1em;"></i>Logout</a></li>
     </ul>
-    {% else %}
+    {% else %}<
     <p class="menu-label">
         I don't have a witty remark this time
     </p>

@@ -4,6 +4,38 @@
 {% block type_name_singular %}movie{% endblock %}
 
 {% block table_listing %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+                function runProcess() {
+                    // Disable the button while processing
+                    $('#run-btn').prop('disabled', true);
+                    $('#status').text('Processing...');
+
+                    // Start the process
+                    $.post('/thegateway/generate', function(data) {
+                        if (data.in_progress) {
+                            alert("Generation is already in progress by another user.");
+                        } else {
+                            // Do the check
+                            checkStatus();
+                        }
+                    });
+                }
+
+                function checkStatus() {
+                    $.get('/thegateway/check_status', function(data) {
+                        if (data.completed) {
+                            $('#status').text(data.message);
+                            alert(data.message);  // Show popup
+                            $('#run-btn').prop('disabled', false);
+                        } else {
+                            $('#status').text('Processing... ' + data.message);
+                            // Check again after a delay
+                            setTimeout(checkStatus, 1000);
+                        }
+                    });
+                }
+    </script>
     <br>
     <a href="{{ url_for('thegateway.admin') }}">Return to the Main Menu</a>
     <table class="table is-fullwidth is-hoverable is-striped">
@@ -79,4 +111,8 @@
             <span>Add a Video</span>
         </button>
     </a>
+
+    <button id="run-btn" class="button is-info" onclick="runProcess()">
+        <span>Generate Videos</span>
+    </button>
 {% endblock %}

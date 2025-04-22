@@ -1,118 +1,308 @@
-{% extends "generic/base_manage.html" %}
+{% extends "generic/base.html" %}
 
-{% block type_name %}movies{% endblock %}
-{% block type_name_singular %}movie{% endblock %}
-
-{% block table_listing %}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-                function runProcess() {
-                    // Disable the button while processing
-                    $('#run-btn').prop('disabled', true);
-                    $('#status').text('Processing...');
-
-                    // Start the process
-                    $.post('/thegateway/generate', function(data) {
-                        if (data.in_progress) {
-                            alert("Generation is already in progress by another user.");
-                        } else {
-                            // Do the check
-                            checkStatus();
-                        }
-                    });
-                }
-
-                function checkStatus() {
-                    $.get('/thegateway/check_status', function(data) {
-                        if (data.completed) {
-                            $('#status').text(data.message);
-                            alert(data.message);  // Show popup
-                            $('#run-btn').prop('disabled', false);
-                        } else {
-                            $('#status').text('Processing... ' + data.message);
-                            // Check again after a delay
-                            setTimeout(checkStatus, 1000);
-                        }
-                    });
-                }
-    </script>
-    <br>
-    <a href="{{ url_for('thegateway.admin') }}">Return to the Main Menu</a>
-    <table class="table is-fullwidth is-hoverable is-striped">
-        <thead>
-        <tr>
-            <th scope="col">Video ID</th>
-            <th scope="col">Name (English)</th>
-            <th scope="col">Length</th>
-            <th scope="col">Thumbnail</th>
-            <th scope="col">Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for video in videos.items %}
-            <tr>
-                <td>{{ video.id }}</td>
-                <td>{{ video.name_english }}</td>
-                <td>{{ video.length }}</td>
-                <td><img src="{{ url_for('thegateway.get_video_thumbnail', movie_id=video.id) }}"
-                         alt="Thumbnail for {{ video.id }}"/></td>
-                <td>
-                    <div class="field has-addons">
-                        <p class="control">
-                            <a href=""
-                               class="button is-danger">
-                                <span class="icon is-small">
-                                    <i class="fas fa-trash"></i>
-                                </span>
-                                <span>Delete</span>
-                            </a>
-                        </p>
-                    </div>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+{% block title %}
+    Manage Videos - Nintendo Channel Admin
 {% endblock %}
 
-{% block add_footer %}
-    <!-- Previous/Next -->
-    {% if videos.has_prev %}
-        <a href="{{ url_for('thegateway.list_videos', page=videos.prev_num) }}">&lt; Previous</a>
-    {% else %}
-        &lt; Previous
-    {% endif %}
-    |
-    {% if videos.has_next %}
-        <a href="{{ url_for('thegateway.list_videos', page=videos.next_num) }}">Next &gt;</a>
-    {% else %}
-        Next &gt;
-    {% endif %}
-    <br/>
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Stats Section -->
+    <div class="flex flex-col sm:flex-row items-center justify-end gap-6 mb-10">
+        <div class="w-full sm:w-auto relative group rounded-xl overflow-hidden">
+            <div class="relative p-6 rounded-xl bg-gray-800/80 border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium uppercase tracking-wider">
+                            Total Videos
+                        </p>
+                        <p class="text-3xl text-white font-bold mt-1">
+                            {{ videos.total }}
+                        </p>
+                    </div>
+                    <div class="p-3 rounded-full bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-lg">
+                        <img src="/static/icon/video.svg" alt="Videos" class="w-6 h-6 invert" />
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <!-- First/Last -->
-    <!-- Ensure we are not on the first page. -->
-    {% if videos.page != 1 %}
-        <a href="{{ url_for('thegateway.list_videos', page=1) }}">&lt;&lt; First</a>
-    {% else %}
-        &lt;&lt; First
-    {% endif %}
-    |
-    <!-- Ensure we are not on the last page. -->
-    {% if videos.page != videos.pages %}
-        <a href="{{ url_for('thegateway.list_videos', page=videos.pages) }}">Last &gt;&gt;</a>
-    {% else %}
-        Last &gt;&gt;
-    {% endif %}
+        <div class="w-full sm:w-auto relative group h-full overflow-hidden rounded-xl">
+            <div class="relative p-6 rounded-xl bg-gray-800/80 border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium uppercase tracking-wider">
+                            Total Length
+                        </p>
+                        <p class="text-3xl text-white font-bold mt-1" id="totalLength">
+                            Calculating...
+                        </p>
+                    </div>
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 shadow-lg">
+                        <img src="/static/icon/clock.svg" alt="Duration" class="w-6 h-6 invert" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <br/>
-    <a href="{{ url_for('thegateway.add_video') }}">
-        <button class="button is-success">
-            <span>Add a Video</span>
-        </button>
-    </a>
+    <!-- Main Video Table -->
+    <div id="videos" class="relative group mb-10">
+        <div class="absolute rounded-lg blur opacity-10 group-hover:opacity-20 transition duration-200"></div>
+        <div class="relative bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 border-b border-gray-700 gap-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-indigo-600/20 rounded-lg text-indigo-400 mr-3">
+                        <img src="/static/icon/video.svg" alt="Icon" class="w-5 h-5 invert" />
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Videos</h2>
+                </div>
+                <div class="flex sm:items-center sm:space-x-2">
+                    <div id="status" class="text-sm text-gray-400 sm:mr-2"></div>
+                    <button id="run-btn" 
+                        onclick="runProcess()" 
+                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition duration-200 flex items-center text-sm mr-2">
+                        <img src="/static/icon/refresh-cw.svg" alt="Generate" class="w-4 h-4 mr-2 invert" /> Generate Videos
+                    </button>
+                    <a href="{{ url_for('thegateway.add_video') }}" 
+                       class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200 flex items-center text-sm">
+                        <img src="/static/icon/plus.svg" alt="Add" class="w-4 h-4 mr-2 invert" /> Add Video
+                    </a>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead class="bg-gray-900/50 backdrop-blur-sm">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                Video ID
+                            </th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                Name (English)
+                            </th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                Length
+                            </th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                Thumbnail
+                            </th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700 bg-gray-800">
+                        {% for video in videos.items %}
+                        <tr class="transition-colors hover:bg-gray-700/50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-indigo-300">
+                                {{ video.id }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                                {{ video.name_english }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {% set hours = (video.length // 3600) %}
+                                {% set minutes = ((video.length % 3600) // 60) %}
+                                {% set seconds = (video.length % 60) %}
+                                
+                                {% if hours > 0 %}
+                                    {{ hours }}h 
+                                {% endif %}
+                                {% if minutes > 0 or hours > 0 %}
+                                    {{ minutes }}m 
+                                {% endif %}
+                                {{ seconds }}s
+                            </td>
+                            <td class="px-6 py-4">
+                                <img src="{{ url_for('thegateway.get_video_thumbnail', movie_id=video.id) }}"
+                                    alt="Thumbnail for {{ video.id }}" 
+                                    class="h-14 object-contain rounded border border-gray-600" />
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <div class="flex space-x-2">
+                                    <a href="/thegateway/videos"
+                                        class="inline-flex items-center px-3 py-1 rounded-md bg-red-700/30 text-red-300 hover:bg-red-600/50 hover:text-white transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination Footer -->
+            {% if videos.pages > 1 %}
+            <div class="p-6 border-t border-gray-700 flex justify-between items-center">
+                <div class="flex space-x-4">
+                    {% if videos.has_prev %}
+                    <a href="{{ url_for('thegateway.list_videos', page=videos.prev_num) }}"
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition duration-200 flex items-center text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous
+                    </a>
+                    {% else %}
+                    <span class="px-4 py-2 bg-gray-700/50 text-gray-500 rounded-lg text-sm cursor-not-allowed">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous
+                    </span>
+                    {% endif %}
 
-    <button id="run-btn" class="button is-info" onclick="runProcess()">
-        <span>Generate Videos</span>
-    </button>
+                    {% if videos.has_next %}
+                    <a href="{{ url_for('thegateway.list_videos', page=videos.next_num) }}"
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition duration-200 flex items-center text-sm">
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    {% else %}
+                    <span class="px-4 py-2 bg-gray-700/50 text-gray-500 rounded-lg text-sm cursor-not-allowed">
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 inline" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <div class="flex space-x-4">
+                    {% if videos.page != 1 %}
+                    <a href="{{ url_for('thegateway.list_videos', page=1) }}"
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition duration-200 flex items-center text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                        </svg>
+                        First
+                    </a>
+                    {% endif %}
+
+                    {% if videos.page != videos.pages %}
+                    <a href="{{ url_for('thegateway.list_videos', page=videos.pages) }}"
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition duration-200 flex items-center text-sm">
+                        Last
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function runProcess() {
+        // Disable the button while processing
+        $('#run-btn').prop('disabled', true);
+        $('#run-btn').addClass('opacity-50 cursor-not-allowed');
+        $('#status').text('Processing...');
+
+        // Start the process
+        $.post('/thegateway/generate', function(data) {
+            if (data.in_progress) {
+                $('#status').text("Generation is already in progress by another user.");
+                setTimeout(function() {
+                    $('#run-btn').prop('disabled', false);
+                    $('#run-btn').removeClass('opacity-50 cursor-not-allowed');
+                    $('#status').text('');
+                }, 3000);
+            } else {
+                // Do the check
+                checkStatus();
+            }
+        });
+    }
+
+    function checkStatus() {
+        $.get('/thegateway/check_status', function(data) {
+            if (data.completed) {
+                $('#status').text(data.message);
+                
+                // Show toast notification instead of alert
+                showToast(data.message, 'success');
+                
+                $('#run-btn').prop('disabled', false);
+                $('#run-btn').removeClass('opacity-50 cursor-not-allowed');
+                
+                // Refresh the page after a delay
+                setTimeout(function() {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                $('#status').text('Processing... ' + data.message);
+                // Check again after a delay
+                setTimeout(checkStatus, 1000);
+            }
+        });
+    }
+    
+    // Toast notification function
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white flex items-center z-50 transform transition-transform duration-300 translate-y-20`;
+        toast.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${type === 'success' ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}" />
+            </svg>
+            ${message}
+        `;
+        document.body.appendChild(toast);
+        
+        // Animate in
+        setTimeout(() => {
+            toast.classList.remove('translate-y-20');
+        }, 10);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-y-20');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 5000);
+    }
+    
+    // Calculate total video length on page load
+    $(document).ready(function() {
+        let totalSeconds = 0;
+        {% for video in videos.items %}
+            totalSeconds += {{ video.length }};
+        {% endfor %}
+        
+        // Format seconds to hours:minutes:seconds
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        
+        let formattedTime = '';
+        if (hours > 0) {
+            formattedTime += hours + 'h ';
+        }
+        if (minutes > 0 || hours > 0) {
+            formattedTime += minutes + 'm ';
+        }
+        formattedTime += seconds + 's';
+        
+        $('#totalLength').text(formattedTime);
+    });
+</script>
 {% endblock %}

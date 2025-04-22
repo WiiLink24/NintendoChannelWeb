@@ -1,50 +1,156 @@
-{% extends "generic/base_manage.html" %}
+{% extends "generic/base.html" %}
 
-{% block type_name %}banners{% endblock %}
-{% block type_name_singular %}banner{% endblock %}
-
-{% block table_listing %}
-    <br>
-    <a href="{{ url_for('thegateway.admin') }}">Return to the Main Menu</a>
-    <table class="table is-fullwidth is-hoverable is-striped">
-        <thead>
-        <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Name (English)</th>
-            <th scope="col">Image</th>
-            <th scope="col">Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for banner in banners.items %}
-            <tr>
-                <td>{{ banner.id }}</td>
-                <td>{{ banner.name_english }}</td>
-                <td><img src="{{ url_for('thegateway.get_banner_thumbnail', banner_id=banner.id) }}"
-                         alt="Thumbnail for {{ banner.id }}"/></td>
-                <td>
-                    <div class="field has-addons">
-                        <p class="control">
-                            <a href="{{ url_for('thegateway.remove_movie', banner_id=banner.id) }}"
-                               class="button is-danger">
-                                <span class="icon is-small">
-                                    <i class="fas fa-trash"></i>
-                                </span>
-                                <span>Delete</span>
-                            </a>
-                        </p>
-                    </div>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+{% block title %}
+Manage Banners - Nintendo Channel Admin
 {% endblock %}
 
-{% block add_footer %}
-    <a href="{{ url_for('thegateway.add_banner') }}">
-        <button class="button is-success">
-            <span>Add an Image</span>
-        </button>
-    </a>
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Stats Section -->
+    <div class="flex flex-col sm:flex-row items-center justify-end gap-6 mb-10">
+        <div class="w-full sm:w-auto relative group rounded-xl overflow-hidden">
+            <div
+                class="relative p-6 rounded-xl bg-gray-800/80 border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium uppercase tracking-wider">
+                            Total Banners
+                        </p>
+                        <p class="text-3xl text-white font-bold mt-1">
+                            {{ banners.total }}
+                        </p>
+                    </div>
+                    <div class="p-3 rounded-full bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-lg">
+                        <img src="/static/icon/gallery.svg" alt="Banners" class="w-6 h-6 invert" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Banner Table -->
+    <div id="banners" class="relative group mb-10">
+        <div class="absolute rounded-lg blur opacity-10 group-hover:opacity-20 transition duration-200"></div>
+        <div class="relative bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700">
+            <div class="flex items-center justify-between p-6 border-b border-gray-700">
+                <div class="flex items-center">
+                    <div class="p-2 bg-indigo-600/20 rounded-lg text-indigo-400 mr-3">
+                        <img src="/static/icon/gallery.svg" alt="Icon" class="w-5 h-5 invert" />
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Banners</h2>
+                </div>
+                <a href="{{ url_for('thegateway.add_banner') }}"
+                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200 flex items-center text-sm">
+                    <img src="/static/icon/plus.svg" alt="Add" class="w-4 h-4 mr-2 invert" /> Add Banner
+                </a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead class="bg-gray-900/50 backdrop-blur-sm">
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                ID
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                Name (English)
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                Name (Japanese)
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                Preview
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700 bg-gray-800">
+                        {% for banner in banners.items %}
+                        <tr class="transition-colors hover:bg-gray-700/50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-indigo-300">
+                                {{ banner.id }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                                {{ banner.name_english }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300">
+                                {{ banner.name_japanese }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <img src="{{ url_for('thegateway.get_banner_thumbnail', banner_id=banner.id) }}"
+                                    alt="Thumbnail for {{ banner.id }}"
+                                    class="h-10 object-contain rounded border border-gray-600" />
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <div class="flex space-x-2">
+                                    <a href="/thegateway/banners/{{ banner.id }}/remove"
+                                        class="inline-flex items-center px-3 py-1 rounded-md bg-red-700/30 text-red-300 hover:bg-red-600/50 hover:text-white transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Footer -->
+            {% if banners.pages > 1 %}
+            <div class="p-6 border-t border-gray-700 flex justify-between items-center">
+                <div class="flex space-x-4">
+                    {% if banners.has_prev %}
+                    <a href="?page={{ banners.prev_num }}"
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition duration-200 flex items-center text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous
+                    </a>
+                    {% else %}
+                    <span class="px-4 py-2 bg-gray-700/50 text-gray-500 rounded-lg text-sm cursor-not-allowed">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous
+                    </span>
+                    {% endif %}
+
+                    {% if banners.has_next %}
+                    <a href="?page={{ banners.next_num }}"
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition duration-200 flex items-center text-sm">
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    {% else %}
+                    <span class="px-4 py-2 bg-gray-700/50 text-gray-500 rounded-lg text-sm cursor-not-allowed">
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 inline" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

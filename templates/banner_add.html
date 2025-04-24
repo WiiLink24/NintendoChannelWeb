@@ -1,39 +1,214 @@
 {% extends "generic/base.html" %}
 
 {% block title %}
-    Upload a Banner
+Upload Banner - Nintendo Channel Admin
 {% endblock %}
 
 {% block content %}
-    <form action="" method="post" enctype="multipart/form-data">
-        <p>
-            {{ form.hidden_tag() }}
-            <div class="columns">
-                <div class="column">
-                    {{ form.title_jpn.label(class_="label") }} {{ form.title_jpn(class_="input") }}
-                    <br>
-                    <br>
-                    {{ form.title_en.label(class_="label") }} {{ form.title_en(class_="input") }}
-                    <br>
-                    <br>
-                    {{ form.title_de.label(class_="label") }} {{ form.title_de(class_="input") }}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="mb-6 text-2xl font-bold text-white">Upload New Banner</h1>
+    <div class="relative group mb-10">
+        <div class="relative bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700 p-8">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-700">
+                <div class="p-2 bg-indigo-600/20 rounded-lg text-indigo-400 mr-3">
+                    <img src="/static/icon/gallery.svg" alt="Icon" class="w-6 h-6 invert" />
                 </div>
-                <div class="column">
-                    {{ form.title_es.label(class_="label") }} {{ form.title_es(class_="input") }}
-                    <br>
-                    <br>
-                    {{ form.title_fr.label(class_="label") }} {{ form.title_fr(class_="input") }}
-                    <br>
-                    <br>
-                    {{ form.title_it.label(class_="label") }} {{ form.title_it(class_="input") }}
+                <h2 class="text-xl font-bold text-white">Banner Details</h2>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {{ form.hidden_tag() }}
+
+                <!-- Banner Thumbnail Upload -->
+                <div>
+                    <label for="{{ form.thumbnail.id }}" class="block text-sm font-medium text-gray-300 mb-2">Banner
+                        Image:</label>
+                    <div class="mt-1 flex items-center">
+                        <label
+                            class="w-full flex items-center justify-center px-4 py-2 border border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 cursor-pointer">
+                            <img src="/static/icon/image.svg" alt="Upload" class="w-5 h-5 mr-2 invert" />
+                            <span>Choose Banner Image</span>
+                            {{ form.thumbnail(class_="sr-only") }}
+                        </label>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-400" id="file-name">No file selected</p>
                 </div>
-                <div class="column">
-                    {{ form.title_dutch.label(class_="label") }} {{ form.title_dutch(class_="input") }}
+
+                <!-- Banner Titles - Primary Languages -->
+                <div>
+                    <h3 class="text-md font-medium text-gray-200 mb-3">Primary Titles</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.title_en.id }}"
+                                class="block text-sm font-medium text-gray-300 mb-2">English Title:</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <img src="/static/icon/type.svg" alt="Icon" class="w-5 h-5 invert opacity-50" />
+                                </div>
+                                {{ form.title_en(class_="bg-gray-700 border border-gray-600 text-white pl-10 w-full px-4
+                                py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500
+                                focus:border-indigo-500", placeholder="Enter English title") }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.title_jpn.id }}"
+                                class="block text-sm font-medium text-gray-300 mb-2">Japanese Title:</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <img src="/static/icon/type.svg" alt="Icon" class="w-5 h-5 invert opacity-50" />
+                                </div>
+                                {{ form.title_jpn(class_="bg-gray-700 border border-gray-600 text-white pl-10 w-full
+                                px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500
+                                focus:border-indigo-500", placeholder="Enter Japanese title") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Banner Titles - European Languages -->
+                <div>
+                    <h3 class="text-md font-medium text-gray-200 mb-3">European Titles</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="{{ form.title_fr.id }}"
+                                class="block text-sm font-medium text-gray-300 mb-2">French Title:</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <img src="/static/icon/type.svg" alt="Icon" class="w-5 h-5 invert opacity-50" />
+                                </div>
+                                {{ form.title_fr(class_="bg-gray-700 border border-gray-600 text-white pl-10 w-full px-4
+                                py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500
+                                focus:border-indigo-500", placeholder="Enter French title") }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.title_de.id }}"
+                                class="block text-sm font-medium text-gray-300 mb-2">German Title:</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <img src="/static/icon/type.svg" alt="Icon" class="w-5 h-5 invert opacity-50" />
+                                </div>
+                                {{ form.title_de(class_="bg-gray-700 border border-gray-600 text-white pl-10 w-full px-4
+                                py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500
+                                focus:border-indigo-500", placeholder="Enter German title") }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.title_it.id }}"
+                                class="block text-sm font-medium text-gray-300 mb-2">Italian Title:</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <img src="/static/icon/type.svg" alt="Icon" class="w-5 h-5 invert opacity-50" />
+                                </div>
+                                {{ form.title_it(class_="bg-gray-700 border border-gray-600 text-white pl-10 w-full px-4
+                                py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500
+                                focus:border-indigo-500", placeholder="Enter Italian title") }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.title_es.id }}"
+                                class="block text-sm font-medium text-gray-300 mb-2">Spanish Title:</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <img src="/static/icon/type.svg" alt="Icon" class="w-5 h-5 invert opacity-50" />
+                                </div>
+                                {{ form.title_es(class_="bg-gray-700 border border-gray-600 text-white pl-10 w-full px-4
+                                py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500
+                                focus:border-indigo-500", placeholder="Enter Spanish title") }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.title_dutch.id }}"
+                                class="block text-sm font-medium text-gray-300 mb-2">Dutch Title:</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <img src="/static/icon/type.svg" alt="Icon" class="w-5 h-5 invert opacity-50" />
+                                </div>
+                                {{ form.title_dutch(class_="bg-gray-700 border border-gray-600 text-white pl-10 w-full
+                                px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500
+                                focus:border-indigo-500", placeholder="Enter Dutch title") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-6">
+                    <a href="{{ url_for('thegateway.list_banners') }}"
+                        class="px-5 py-2 border border-gray-600 rounded-lg shadow-sm text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 transition-colors duration-200">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200 flex items-center text-sm">
+                        <img src="/static/icon/upload.svg" alt="Upload" class="w-4 h-4 mr-1.5 invert" />
+                        Upload Banner
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="relative group">
+        <div class="relative bg-gray-800/80 border border-gray-700 rounded-lg p-6">
+            <div class="flex">
+                <div class="p-2 bg-blue-600/20 rounded-lg text-blue-400 mr-3 self-start">
+                    <img src="/static/icon/info.svg" alt="Icon" class="w-5 h-5 invert" />
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-white mb-2">Banner Guidelines</h3>
+                    <div class="text-sm text-gray-300 space-y-2">
+                        <p>Banners should be in PNG or JPEG format with dimensions of 192x48 pixels.</p>
+                        <p>Provide titles in all supported languages to ensure proper display across all regions.</p>
+                        <p>Keep text content minimal and ensure high contrast against the background for better
+                            readability on the Nintendo Channel.</p>
+                    </div>
                 </div>
             </div>
-            {{ form.thumbnail.label(class_="label") }} {{ form.thumbnail(size=32) }}
-        </p>
-        <br>
-        <p>{{ form.upload(class_="button is-success") }}</p>
-    </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Display selected filename
+    document.getElementById('{{ form.thumbnail.id }}').addEventListener('change', function (e) {
+        var fileName = e.target.files[0] ? e.target.files[0].name : 'No file selected';
+        document.getElementById('file-name').textContent = fileName;
+    });
+
+    // Add icon to submit button
+    window.addEventListener('DOMContentLoaded', function () {
+        const submitButton = document.querySelector('input[type="submit"]');
+        if (submitButton) {
+            const buttonWrapper = document.createElement('div');
+            buttonWrapper.className = 'flex items-center';
+
+            const icon = document.createElement('img');
+            icon.src = '/static/icon/upload.svg';
+            icon.alt = 'Upload';
+            icon.className = 'w-4 h-4 mr-1.5 invert';
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = submitButton.value || 'Upload Banner';
+
+            // Replace submit button with styled version
+            submitButton.parentNode.insertBefore(buttonWrapper, submitButton);
+            buttonWrapper.appendChild(icon);
+            buttonWrapper.appendChild(textSpan);
+            buttonWrapper.appendChild(submitButton);
+
+            // Style the original button to be invisible but still clickable
+            submitButton.style.opacity = '0';
+            submitButton.style.position = 'absolute';
+            submitButton.style.width = '100%';
+            submitButton.style.height = '100%';
+            submitButton.style.left = '0';
+            submitButton.style.top = '0';
+            submitButton.style.cursor = 'pointer';
+        }
+    });
+</script>
 {% endblock %}

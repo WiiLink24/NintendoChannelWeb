@@ -36,12 +36,14 @@ def save_video_data(movie_id: int, thumbnail_data: bytes, video_data: bytes):
         os.makedirs("./assets/videos")
 
     # Resize and write thumbnail
-    thumbnail_data = video_thumbnail_encode(thumbnail_data)
-    thumbnail = open(f"./assets/videos/{movie_id}.img", "wb")
-    thumbnail.write(thumbnail_data)
-    thumbnail.close()
+    if thumbnail_data:
+        thumbnail_data = video_thumbnail_encode(thumbnail_data)
+        thumbnail = open(f"./assets/videos/{movie_id}.img", "wb")
+        thumbnail.write(thumbnail_data)
+        thumbnail.close()
 
     # Write video
-    video = open(f"./assets/videos/{movie_id}.mo", "wb")
-    video.write(video_data)
-    video.close()
+    if video_data:
+        video = open(f"./assets/videos/{movie_id}.mo", "wb")
+        video.write(video_data)
+        video.close()

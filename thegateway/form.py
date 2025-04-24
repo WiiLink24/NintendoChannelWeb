@@ -28,7 +28,7 @@ class VideoType(enum.Enum):
 
 
 class VideoForm(FlaskForm):
-    video = FileField("Video", validators=[FileRequired()])
+    video = FileField("Video")
     title_jpn = StringField(
         "Title (Japanese)", validators=[DataRequired(), Length(max=102)]
     )
@@ -51,7 +51,7 @@ class VideoForm(FlaskForm):
         "Title (Dutch)", validators=[DataRequired(), Length(max=102)]
     )
     video_type = SelectField("Video Type", choices=VideoType.choices())
-    thumbnail = FileField("Video thumbnail", validators=[FileRequired()])
+    thumbnail = FileField("Video thumbnail")
     upload = SubmitField("Add Video")
 
 

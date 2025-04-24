@@ -17,6 +17,8 @@ from thegateway.admin import oidc
 from werkzeug.utils import redirect
 import threading
 import subprocess
+from werkzeug import exceptions
+from flask_wtf.file import FileRequired
 
 
 generate_status = {
@@ -44,10 +46,64 @@ def list_videos():
     )
 
 
+@thegateway_blueprint.route("/thegateway/videos/<movie_id>/edit", methods=["GET", "POST"])
+@oidc.require_login
+def edit_video(movie_id):
+    form = VideoForm()
+    form.upload.label.text = "Edit Video"
+
+    movie = Videos.query.filter_by(id=movie_id).first()
+    if not movie:
+        return exceptions.NotFound()
+
+    if form.validate_on_submit():
+        thumbnail_data = None
+        video_data = None
+        if form.video.data:
+            video_data = form.video.data.read()
+            if validate_mobiclip(video_data):
+                length = get_mobiclip_length(video_data)
+                movie.length = length
+            else:
+                flash("Invalid movie")
+                return render_template("video_action.html", form=form, action="Edit")
+
+        if form.thumbnail.data:
+            thumbnail_data = form.thumbnail.data.read()
+
+        save_video_data(movie.id, thumbnail_data, video_data)
+
+        movie.name_japanese = form.title_jpn.data
+        movie.name_english = form.title_en.data
+        movie.name_german = form.title_de.data
+        movie.name_french = form.title_fr.data
+        movie.name_spanish = form.title_es.data
+        movie.name_italian = form.title_it.data
+        movie.name_dutch = form.title_dutch.data
+        movie.video_type = form.video_type.data
+        db.session.commit()
+
+        return redirect(url_for("thegateway.list_videos"))
+    else:
+        form.title_jpn.data = movie.name_japanese
+        form.title_en.data = movie.name_english
+        form.title_de.data = movie.name_german
+        form.title_fr.data = movie.name_french
+        form.title_es.data = movie.name_spanish
+        form.title_it.data = movie.name_italian
+        form.title_dutch.data = movie.name_dutch
+        form.video_type.data = movie.video_type
+
+    return render_template("video_action.html", form=form, action="Edit")
+
+
 @thegateway_blueprint.route("/thegateway/videos/add", methods=["GET", "POST"])
 @oidc.require_login
 def add_video():
     form = VideoForm()
+    form.video_type.validators = [FileRequired()]
+    form.thumbnail.validators = [FileRequired()]
+
     if form.validate_on_submit():
         video = form.video.data
         thumbnail = form.thumbnail.data
@@ -82,7 +138,7 @@ def add_video():
         else:
             flash("Error uploading video!")
 
-    return render_template("video_add.html", form=form)
+    return render_template("video_action.html", form=form, action="Add")
 
 
 @thegateway_blueprint.route("/thegateway/movies/<movie_id>/thumbnail.jpg")

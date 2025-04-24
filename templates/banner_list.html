@@ -39,10 +39,18 @@ Manage Banners - Nintendo Channel Admin
                     </div>
                     <h2 class="text-xl font-bold text-white">Banners</h2>
                 </div>
-                <a href="{{ url_for('thegateway.add_banner') }}"
-                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200 flex items-center text-sm">
-                    <img src="/static/icon/plus.svg" alt="Add" class="w-4 h-4 mr-2 invert" /> Add Banner
-                </a>
+                <div class="flex sm:items-center sm:space-x-2">
+                    <div id="status" class="text-sm text-gray-400 sm:mr-2"></div>
+                    <button id="run-btn"
+                        onclick="runProcess()"
+                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition duration-200 flex items-center text-sm mr-2">
+                        <img src="/static/icon/refresh-cw.svg" alt="Generate" class="w-4 h-4 mr-2 invert" /> Generate Banners
+                    </button>
+                    <a href="{{ url_for('thegateway.add_banner') }}"
+                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200 flex items-center text-sm">
+                        <img src="/static/icon/plus.svg" alt="Add" class="w-4 h-4 mr-2 invert" /> Add Banner
+                    </a>
+                </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-700">
@@ -153,4 +161,77 @@ Manage Banners - Nintendo Channel Admin
         </div>
     </div>
 </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function runProcess() {
+        // Disable the button while processing
+        $('#run-btn').prop('disabled', true);
+        $('#run-btn').addClass('opacity-50 cursor-not-allowed');
+        $('#status').text('Processing...');
+
+        // Start the process
+        $.post('/thegateway/banners/generate', function(data) {
+            if (data.in_progress) {
+                $('#status').text("Generation is already in progress by another user.");
+                setTimeout(function() {
+                    $('#run-btn').prop('disabled', false);
+                    $('#run-btn').removeClass('opacity-50 cursor-not-allowed');
+                    $('#status').text('');
+                }, 3000);
+            } else {
+                // Do the check
+                checkStatus();
+            }
+        });
+    }
+
+    function checkStatus() {
+        $.get('/thegateway/banners/check_status', function(data) {
+            if (data.completed) {
+                $('#status').text(data.message);
+
+                // Show toast notification instead of alert
+                showToast(data.message, 'success');
+
+                $('#run-btn').prop('disabled', false);
+                $('#run-btn').removeClass('opacity-50 cursor-not-allowed');
+
+                // Refresh the page after a delay
+                setTimeout(function() {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                $('#status').text('Processing... ' + data.message);
+                // Check again after a delay
+                setTimeout(checkStatus, 1000);
+            }
+        });
+    }
+
+    // Toast notification function
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white flex items-center z-50 transform transition-transform duration-300 translate-y-20`;
+        toast.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${type === 'success' ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}" />
+            </svg>
+            ${message}
+        `;
+        document.body.appendChild(toast);
+
+        // Animate in
+        setTimeout(() => {
+            toast.classList.remove('translate-y-20');
+        }, 10);
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-y-20');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 5000);
+    }
+</script>
 {% endblock %}

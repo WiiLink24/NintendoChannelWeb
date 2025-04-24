@@ -6,6 +6,7 @@ from flask import (
     redirect,
     request,
     send_from_directory,
+    jsonify
 )
 from thegateway.imageencode import banner_encode
 from thegateway.operations import manage_delete_item
@@ -13,7 +14,17 @@ from thegateway import thegateway_blueprint
 from thegateway.admin import oidc
 from werkzeug.utils import redirect
 from thegateway.form import BannerForm
+from time import sleep
+import threading
+import subprocess
 import os
+
+
+banner_generate_status = {
+    "completed": False,
+    'message': "",
+    "in_progress": False,
+}
 
 
 @thegateway_blueprint.route("/thegateway/banners/")
@@ -86,3 +97,32 @@ def remove_movie(banner_id):
 @oidc.require_login
 def get_banner_thumbnail(banner_id):
     return send_from_directory("./assets/banners/", f"{banner_id}.img")
+
+
+@thegateway_blueprint.post("/thegateway/banners/generate")
+@oidc.require_login
+def generate_banners():
+    def actually_generate_banners():
+        message = "Successfully generated banners!"
+        # Sleep for a second to give the web app time to process the fact that another user isn't generating.
+        sleep(1)
+        banner_generate_status["in_progress"] = True
+
+        # Generate videos first
+        if subprocess.run(["./cli", "4"]).returncode != 0:
+            message = "Error generating banners."
+
+        banner_generate_status["completed"] = True
+        banner_generate_status["message"] = message
+        banner_generate_status["in_progress"] = False
+
+    if not banner_generate_status["in_progress"]:
+        threading.Thread(target=actually_generate_banners, daemon=True).start()
+
+    return jsonify(banner_generate_status)
+
+
+@thegateway_blueprint.route("/thegateway/banners/check_status")
+def check_banner_status():
+    """Endpoint to check the current process status"""
+    return jsonify(banner_generate_status)

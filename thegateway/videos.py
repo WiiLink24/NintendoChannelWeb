@@ -101,8 +101,8 @@ def edit_video(movie_id):
 @oidc.require_login
 def add_video():
     form = VideoForm()
-    form.video_type.validators = [FileRequired()]
     form.thumbnail.validators = [FileRequired()]
+    form.video.validators = [FileRequired()]
 
     if form.validate_on_submit():
         video = form.video.data

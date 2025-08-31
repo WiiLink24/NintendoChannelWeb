@@ -1,4 +1,5 @@
 from time import sleep
+import os
 
 from models import db, Videos
 from flask import (
@@ -14,6 +15,7 @@ from thegateway import thegateway_blueprint
 from thegateway.mobiclip import validate_mobiclip, save_video_data, get_mobiclip_length
 from thegateway.form import VideoForm
 from thegateway.admin import oidc
+from thegateway.operations import manage_delete_item
 from werkzeug.utils import redirect
 import threading
 import subprocess
@@ -139,6 +141,21 @@ def add_video():
             flash("Error uploading video!")
 
     return render_template("video_action.html", form=form, action="Add")
+
+@thegateway_blueprint.route(
+    "/thegateway/videos/<video_id>/remove", methods=["GET", "POST"]
+)
+@oidc.require_login
+def remove_movie(video_id):
+    def drop_movie():
+        video = Videos.query.filter_by(id=video_id).first()
+        db.session.delete(video)
+        db.session.commit()
+        os.remove(f"./assets/videos/{video_id}.img")
+        os.remove(f"./assets/videos/{video_id}.mo")
+        return redirect(url_for("thegateway.list_videos"))
+
+    return manage_delete_item(video_id, "video", drop_movie)
 
 
 @thegateway_blueprint.route("/thegateway/movies/<movie_id>/thumbnail.jpg")

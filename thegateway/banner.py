@@ -6,7 +6,7 @@ from flask import (
     redirect,
     request,
     send_from_directory,
-    jsonify
+    jsonify,
 )
 from thegateway.imageencode import banner_encode
 from thegateway.operations import manage_delete_item
@@ -14,6 +14,7 @@ from thegateway import thegateway_blueprint
 from thegateway.admin import oidc
 from werkzeug.utils import redirect
 from thegateway.form import BannerForm
+from sqlalchemy import between
 from time import sleep
 import threading
 import subprocess
@@ -22,7 +23,7 @@ import os
 
 banner_generate_status = {
     "completed": False,
-    'message': "",
+    "message": "",
     "in_progress": False,
 }
 
@@ -31,7 +32,7 @@ banner_generate_status = {
 @oidc.require_login
 def list_banners():
     # Has to be 3 banner images.
-    banners = Banners.query.order_by(Banners.id.asc()).paginate(
+    banners = Banners.query.order_by(Banners.order.asc()).paginate(
         per_page=3, error_out=False
     )
 
@@ -58,6 +59,7 @@ def add_banner():
                 name_spanish=form.title_es.data,
                 name_italian=form.title_it.data,
                 name_dutch=form.title_dutch.data,
+                order=Banners.query.count() + 1,
             )
 
             db.session.add(db_banner)
@@ -91,6 +93,33 @@ def remove_movie(banner_id):
         return redirect(url_for("list_categories"))
 
     return manage_delete_item(banner_id, "banner", drop_banner)
+
+
+@thegateway_blueprint.route("/thegateway/banners/move/<order>/<direction>")
+@oidc.require_login
+def move_banner(order, direction):
+    order = int(order)
+    if direction == "up":
+        # We require the current banner and the one before it.
+        banners = (
+            Banners.query.filter(Banners.order.between(order - 1, order))
+            .order_by(Banners.order.asc())
+            .all()
+        )
+        banners[0].order += 1
+        banners[1].order -= 1
+    elif direction == "down":
+        # We require the current banner and the one after it.
+        banners = (
+            Banners.query.filter(Banners.order.between(order, order + 1))
+            .order_by(Banners.order.asc())
+            .all()
+        )
+        banners[0].order += 1
+        banners[1].order -= 1
+
+    db.session.commit()
+    return redirect(url_for("thegateway.list_banners"))
 
 
 @thegateway_blueprint.route("/thegateway/banners/<banner_id>/thumbnail.jpg")

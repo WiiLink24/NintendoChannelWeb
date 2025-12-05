@@ -84,13 +84,13 @@ def add_banner():
     "/thegateway/banners/<banner_id>/remove", methods=["GET", "POST"]
 )
 @oidc.require_login
-def remove_movie(banner_id):
+def remove_banner(banner_id):
     def drop_banner():
         banner = Banners.query.filter_by(id=banner_id).first()
         db.session.delete(banner)
         db.session.commit()
         os.remove(f"./assets/banners/{banner_id}.img")
-        return redirect(url_for("list_categories"))
+        return redirect(url_for("thegateway.list_banners"))
 
     return manage_delete_item(banner_id, "banner", drop_banner)
 

@@ -130,5 +130,6 @@ dmypy.json
 
 .idea
 .DS_Store
+assets/
 
 config.py

@@ -1,3 +1,12 @@
+FROM golang:alpine AS builder
+
+WORKDIR /app
+
+RUN apk add -U --no-cache git
+
+RUN git clone https://github.com/WiiLink24/NintendoChannel .
+RUN go build -o cli cli/main.go
+
 FROM python:3.10-alpine
 
 RUN adduser -D server
@@ -16,6 +25,9 @@ USER server
 
 # Finally, copy the entire source.
 COPY . .
+
+# Copy file generator
+COPY --from=builder /app/cli .
 
 ENV FLASK_APP app.py
 EXPOSE 5000

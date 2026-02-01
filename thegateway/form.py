@@ -56,7 +56,6 @@ class VideoForm(FlaskForm):
 
 
 class BannerForm(FlaskForm):
-    banner = FileField("Banner")
     title_jpn = StringField(
         "Title (Japanese)", validators=[DataRequired(), Length(max=102)]
     )

@@ -99,6 +99,11 @@ Manage Banners - Nintendo Channel Admin
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 <div class="flex space-x-2">
+                                    <a href="{{ url_for('thegateway.edit_banner', banner_id=banner.id) }}"
+                                            class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200 text-xs">
+                                            <img src="/static/icon/pencil.svg" alt="Edit" class="h-3.5 w-3.5 mr-1.5 invert" />
+                                            <span>Edit</span>
+                                    </a>
                                     <a href="/thegateway/banners/{{ banner.id }}/remove"
                                         class="inline-flex items-center px-3 py-1 rounded-md bg-red-700/30 text-red-300 hover:bg-red-600/50 hover:text-white transition-colors duration-200">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none"

@@ -20,6 +20,7 @@ import threading
 import subprocess
 import os
 from werkzeug import exceptions
+from flask_wtf.file import FileRequired
 
 
 banner_generate_status = {
@@ -55,6 +56,7 @@ def list_banners():
 @oidc.require_login
 def add_banner():
     form = BannerForm()
+    form.thumbnail.validators = [FileRequired()]
     if form.validate_on_submit():
         thumbnail = form.thumbnail.data
         if thumbnail:
@@ -102,11 +104,7 @@ def edit_banner(banner_id):
         thumbnail_data = None
         if form.thumbnail.data:
             thumbnail_data = form.thumbnail.data.read()
-        else:
-            flash("Invalid banner")
-            return render_template("banner_action.html", form=form, action="Edit")
-
-        save_banner_data(banner_id, thumbnail_data)
+            save_banner_data(banner_id, thumbnail_data)
 
         banner.name_japanese = form.title_jpn.data
         banner.name_english = form.title_en.data

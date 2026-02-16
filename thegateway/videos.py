@@ -22,10 +22,9 @@ import subprocess
 from werkzeug import exceptions
 from flask_wtf.file import FileRequired
 
-
 generate_status = {
     "completed": False,
-    'message': "",
+    "message": "",
     "in_progress": False,
 }
 
@@ -48,7 +47,9 @@ def list_videos():
     )
 
 
-@thegateway_blueprint.route("/thegateway/videos/<movie_id>/edit", methods=["GET", "POST"])
+@thegateway_blueprint.route(
+    "/thegateway/videos/<movie_id>/edit", methods=["GET", "POST"]
+)
 @oidc.require_login
 def edit_video(movie_id):
     form = VideoForm()
@@ -75,25 +76,41 @@ def edit_video(movie_id):
 
         save_video_data(movie.id, thumbnail_data, video_data)
 
-        movie.name_japanese = form.title_jpn.data
-        movie.name_english = form.title_en.data
-        movie.name_german = form.title_de.data
-        movie.name_french = form.title_fr.data
-        movie.name_spanish = form.title_es.data
-        movie.name_italian = form.title_it.data
-        movie.name_dutch = form.title_dutch.data
+        movie.name_japanese = form.title_jpn.data + "\n" + form.title_jpn_2.data
+        movie.name_english = form.title_en.data + "\n" + form.title_en_2.data
+        movie.name_german = form.title_de.data + "\n" + form.title_de_2.data
+        movie.name_french = form.title_fr.data + "\n" + form.title_fr_2.data
+        movie.name_spanish = form.title_es.data + "\n" + form.title_es_2.data
+        movie.name_italian = form.title_it.data + "\n" + form.title_it_2.data
+        movie.name_dutch = form.title_nl.data + "\n" + form.title_nl_2.data
         movie.video_type = form.video_type.data
         db.session.commit()
 
         return redirect(url_for("thegateway.list_videos"))
     else:
-        form.title_jpn.data = movie.name_japanese
-        form.title_en.data = movie.name_english
-        form.title_de.data = movie.name_german
-        form.title_fr.data = movie.name_french
-        form.title_es.data = movie.name_spanish
-        form.title_it.data = movie.name_italian
-        form.title_dutch.data = movie.name_dutch
+        split_jpn = movie.name_japanese.split("\n")
+        split_en = movie.name_english.split("\n")
+        split_de = movie.name_german.split("\n")
+        split_fr = movie.name_french.split("\n")
+        split_es = movie.name_spanish.split("\n")
+        split_it = movie.name_italian.split("\n")
+        split_nl = movie.name_dutch.split("\n")
+
+        form.title_jpn.data = split_jpn[0]
+        form.title_jpn_2.data = split_jpn[1]
+        form.title_en.data = split_en[0]
+        form.title_en_2.data = split_en[1]
+        form.title_de.data = split_de[0]
+        form.title_de_2.data = split_de[1]
+        form.title_fr.data = split_fr[0]
+        form.title_fr_2.data = split_fr[1]
+        form.title_es.data = split_es[0]
+        form.title_es_2.data = split_es[1]
+        form.title_it.data = split_it[0]
+        form.title_it_2.data = split_it[1]
+        form.title_nl.data = split_nl[0]
+        form.title_nl_2.data = split_nl[1]
+
         form.video_type.data = movie.video_type
 
     return render_template("video_action.html", form=form, action="Edit")
@@ -118,13 +135,13 @@ def add_video():
                 length = get_mobiclip_length(video_data)
 
                 db_video = Videos(
-                    name_japanese=form.title_jpn.data,
-                    name_english=form.title_en.data,
-                    name_german=form.title_de.data,
-                    name_french=form.title_fr.data,
-                    name_spanish=form.title_es.data,
-                    name_italian=form.title_it.data,
-                    name_dutch=form.title_dutch.data,
+                    name_japanese=form.title_jpn.data + "\n" + form.title_jpn_2.data,
+                    name_english=form.title_en.data + "\n" + form.title_en_2.data,
+                    name_german=form.title_de.data + "\n" + form.title_de_2.data,
+                    name_french=form.title_fr.data + "\n" + form.title_fr_2.data,
+                    name_spanish=form.title_es.data + "\n" + form.title_es_2.data,
+                    name_italian=form.title_it.data + "\n" + form.title_it_2.data,
+                    name_dutch=form.title_nl.data + "\n" + form.title_nl_2.data,
                     length=length,
                     video_type=form.video_type.data,
                 )
@@ -141,6 +158,7 @@ def add_video():
             flash("Error uploading video!")
 
     return render_template("video_action.html", form=form, action="Add")
+
 
 @thegateway_blueprint.route(
     "/thegateway/videos/<video_id>/remove", methods=["GET", "POST"]

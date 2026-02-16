@@ -30,25 +30,46 @@ class VideoType(enum.Enum):
 class VideoForm(FlaskForm):
     video = FileField("Video")
     title_jpn = StringField(
-        "Title (Japanese)", validators=[DataRequired(), Length(max=102)]
+        validators=[DataRequired(), Length(max=51)]
+    )
+    title_jpn_2 = StringField(
+        validators=[Length(max=51)]
     )
     title_en = StringField(
-        "Title (English)", validators=[DataRequired(), Length(max=102)]
+        validators=[DataRequired(), Length(max=51)]
+    )
+    title_en_2 = StringField(
+        validators=[Length(max=51)]
     )
     title_de = StringField(
-        "Title (German)", validators=[DataRequired(), Length(max=102)]
+        validators=[DataRequired(), Length(max=51)]
+    )
+    title_de_2 = StringField(
+        validators=[Length(max=51)]
     )
     title_es = StringField(
-        "Title (Spanish)", validators=[DataRequired(), Length(max=102)]
+        validators=[DataRequired(), Length(max=51)]
+    )
+    title_es_2 = StringField(
+        validators=[Length(max=51)]
     )
     title_fr = StringField(
-        "Title (French)", validators=[DataRequired(), Length(max=102)]
+        validators=[DataRequired(), Length(max=51)]
+    )
+    title_fr_2 = StringField(
+        validators=[Length(max=51)]
     )
     title_it = StringField(
-        "Title (Italian)", validators=[DataRequired(), Length(max=102)]
+        validators=[DataRequired(), Length(max=51)]
     )
-    title_dutch = StringField(
-        "Title (Dutch)", validators=[DataRequired(), Length(max=102)]
+    title_it_2 = StringField(
+        validators=[Length(max=51)]
+    )
+    title_nl = StringField(
+        validators=[DataRequired(), Length(max=51)]
+    )
+    title_nl_2 = StringField(
+        validators=[Length(max=51)]
     )
     video_type = SelectField("Video Type", choices=VideoType.choices())
     thumbnail = FileField("Video thumbnail")

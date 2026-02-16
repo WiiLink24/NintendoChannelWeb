@@ -97,19 +97,26 @@ def edit_video(movie_id):
         split_nl = movie.name_dutch.split("\n")
 
         form.title_jpn.data = split_jpn[0]
-        form.title_jpn_2.data = split_jpn[1]
+        if len(split_jpn) > 1:
+            form.title_jpn_2.data = split_jpn[1]
         form.title_en.data = split_en[0]
-        form.title_en_2.data = split_en[1]
+        if len(split_en) > 1:
+            form.title_en_2.data = split_en[1]
         form.title_de.data = split_de[0]
-        form.title_de_2.data = split_de[1]
+        if len(split_de) > 1:
+            form.title_de_2.data = split_de[1]
         form.title_fr.data = split_fr[0]
-        form.title_fr_2.data = split_fr[1]
+        if len(split_fr) > 1:
+            form.title_fr_2.data = split_fr[1]
         form.title_es.data = split_es[0]
-        form.title_es_2.data = split_es[1]
+        if len(split_es) > 1:
+            form.title_es_2.data = split_es[1]
         form.title_it.data = split_it[0]
-        form.title_it_2.data = split_it[1]
+        if len(split_it) > 1:
+            form.title_it_2.data = split_it[1]
         form.title_nl.data = split_nl[0]
-        form.title_nl_2.data = split_nl[1]
+        if len(split_nl) > 1:
+            form.title_nl_2.data = split_nl[1]
 
         form.video_type.data = movie.video_type
 

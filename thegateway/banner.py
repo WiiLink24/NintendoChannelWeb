@@ -19,6 +19,8 @@ from time import sleep
 import threading
 import subprocess
 import os
+from werkzeug import exceptions
+from flask_wtf.file import FileRequired
 
 
 banner_generate_status = {
@@ -26,6 +28,13 @@ banner_generate_status = {
     "message": "",
     "in_progress": False,
 }
+
+
+def save_banner_data(banner_id: int, thumbnail_data: bytes):
+    thumbnail_data = banner_encode(thumbnail_data)
+    thumbnail = open(f"./assets/banners/{banner_id}.img", "wb")
+    thumbnail.write(thumbnail_data)
+    thumbnail.close()
 
 
 @thegateway_blueprint.route("/thegateway/banners/")
@@ -47,6 +56,7 @@ def list_banners():
 @oidc.require_login
 def add_banner():
     form = BannerForm()
+    form.thumbnail.validators = [FileRequired()]
     if form.validate_on_submit():
         thumbnail = form.thumbnail.data
         if thumbnail:
@@ -77,7 +87,45 @@ def add_banner():
         else:
             flash("Error uploading image!")
 
-    return render_template("banner_add.html", form=form)
+    return render_template("banner_action.html", form=form, action="Upload New")
+
+
+@thegateway_blueprint.route("/thegateway/banners/<banner_id>/edit", methods=["GET", "POST"])
+@oidc.require_login
+def edit_banner(banner_id):
+    form = BannerForm()
+    form.upload.label.text = "Edit Banner"
+
+    banner = Banners.query.filter_by(id=banner_id).first()
+    if not banner:
+        return exceptions.NotFound()
+
+    if form.validate_on_submit():
+        thumbnail_data = None
+        if form.thumbnail.data:
+            thumbnail_data = form.thumbnail.data.read()
+            save_banner_data(banner_id, thumbnail_data)
+
+        banner.name_japanese = form.title_jpn.data
+        banner.name_english = form.title_en.data
+        banner.name_german = form.title_de.data
+        banner.name_french = form.title_fr.data
+        banner.name_spanish = form.title_es.data
+        banner.name_italian = form.title_it.data
+        banner.name_dutch = form.title_dutch.data
+        db.session.commit()
+
+        return redirect(url_for("thegateway.list_banners"))
+    else:
+        form.title_jpn.data = banner.name_japanese
+        form.title_en.data = banner.name_english
+        form.title_de.data = banner.name_german
+        form.title_fr.data = banner.name_french
+        form.title_es.data = banner.name_spanish
+        form.title_it.data = banner.name_italian
+        form.title_dutch.data = banner.name_dutch
+
+    return render_template("banner_action.html", form=form, action="Edit")
 
 
 @thegateway_blueprint.route(

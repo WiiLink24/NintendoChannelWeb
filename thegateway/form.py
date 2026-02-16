@@ -98,7 +98,7 @@ class BannerForm(FlaskForm):
     title_dutch = StringField(
         "Title (Dutch)", validators=[DataRequired(), Length(max=102)]
     )
-    thumbnail = FileField("Image", validators=[FileRequired()])
+    thumbnail = FileField("Image")
     upload = SubmitField("Add")
 
 

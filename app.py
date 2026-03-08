@@ -4,6 +4,7 @@ from cgi.cgi import cgi_blueprint
 from thegateway import thegateway_blueprint
 from werkzeug.serving import WSGIRequestHandler
 from channel_static.main import channel_static_blueprint
+from flask_migrate import Migrate
 import config
 import ssl
 
@@ -16,6 +17,7 @@ app.config["OIDC_SCOPES"] = "openid profile"
 app.config["OIDC_OVERWRITE_REDIRECT_URI"] = config.oidc_redirect_uri
 
 db.init_app(app)
+migrate = Migrate(app, db)
 
 app.register_blueprint(cgi_blueprint)
 app.register_blueprint(thegateway_blueprint)

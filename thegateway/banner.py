@@ -114,6 +114,7 @@ def edit_banner(banner_id):
         banner.name_spanish = form.title_es.data
         banner.name_italian = form.title_it.data
         banner.name_dutch = form.title_dutch.data
+        banner.name_ptbr = form.title_ptbr.data
         db.session.commit()
 
         return redirect(url_for("thegateway.list_banners"))
@@ -125,6 +126,7 @@ def edit_banner(banner_id):
         form.title_es.data = banner.name_spanish
         form.title_it.data = banner.name_italian
         form.title_dutch.data = banner.name_dutch
+        form.title_ptbr.data = banner.name_ptbr
 
     return render_template("banner_action.html", form=form, action="Edit")
 

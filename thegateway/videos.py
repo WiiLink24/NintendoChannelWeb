@@ -83,6 +83,7 @@ def edit_video(movie_id):
         movie.name_spanish = form.title_es.data + "\n" + form.title_es_2.data
         movie.name_italian = form.title_it.data + "\n" + form.title_it_2.data
         movie.name_dutch = form.title_nl.data + "\n" + form.title_nl_2.data
+        movie.name_ptbr = form.title_ptbr.data + "\n" + form.title_ptbr_2.data
         movie.video_type = form.video_type.data
         db.session.commit()
 
@@ -95,6 +96,7 @@ def edit_video(movie_id):
         split_es = movie.name_spanish.split("\n")
         split_it = movie.name_italian.split("\n")
         split_nl = movie.name_dutch.split("\n")
+        split_ptbr = movie.name_ptbr.split("\n")
 
         form.title_jpn.data = split_jpn[0]
         if len(split_jpn) > 1:
@@ -117,6 +119,9 @@ def edit_video(movie_id):
         form.title_nl.data = split_nl[0]
         if len(split_nl) > 1:
             form.title_nl_2.data = split_nl[1]
+        form.title_ptbr.data = split_ptbr[0]
+        if len(split_ptbr) > 1:
+            form.title_ptbr_2.data = split_ptbr[1]
 
         form.video_type.data = movie.video_type
 
@@ -149,6 +154,7 @@ def add_video():
                     name_spanish=form.title_es.data + "\n" + form.title_es_2.data,
                     name_italian=form.title_it.data + "\n" + form.title_it_2.data,
                     name_dutch=form.title_nl.data + "\n" + form.title_nl_2.data,
+                    name_ptbr=form.title_ptbr.data + "\n" + form.title_ptbr_2.data,
                     length=length,
                     video_type=form.video_type.data,
                 )

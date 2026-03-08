@@ -13,6 +13,7 @@ class Videos(db.Model):
     name_spanish = db.Column(db.String(102))
     name_italian = db.Column(db.String(102))
     name_dutch = db.Column(db.String(102))
+    name_ptbr = db.Column(db.String(102))
     length = db.Column(db.Integer)
     video_type = db.Column(db.Integer)
     date_added = db.Column(db.DateTime, nullable=False, server_default=func.now())
@@ -47,4 +48,5 @@ class Banners(db.Model):
     name_spanish = db.Column(db.String(102))
     name_italian = db.Column(db.String(102))
     name_dutch = db.Column(db.String(102))
+    name_ptbr = db.Column(db.String(102))
     order = db.Column(db.Integer)

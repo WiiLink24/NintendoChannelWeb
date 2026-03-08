@@ -71,6 +71,12 @@ class VideoForm(FlaskForm):
     title_nl_2 = StringField(
         validators=[Length(max=51)]
     )
+    title_ptbr = StringField(
+        validators=[DataRequired(), Length(max=51)]
+    )
+    title_ptbr_2 = StringField(
+        validators=[Length(max=51)]
+    )
     video_type = SelectField("Video Type", choices=VideoType.choices())
     thumbnail = FileField("Video thumbnail")
     upload = SubmitField("Add Video")
@@ -97,6 +103,9 @@ class BannerForm(FlaskForm):
     )
     title_dutch = StringField(
         "Title (Dutch)", validators=[DataRequired(), Length(max=102)]
+    )
+    title_ptbr = StringField(
+        "Title (Brazilian Portuguese)", validators=[DataRequired(), Length(max=102)]
     )
     thumbnail = FileField("Image", validators=[FileRequired()])
     upload = SubmitField("Add")

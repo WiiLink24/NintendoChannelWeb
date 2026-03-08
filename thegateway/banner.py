@@ -59,6 +59,7 @@ def add_banner():
                 name_spanish=form.title_es.data,
                 name_italian=form.title_it.data,
                 name_dutch=form.title_dutch.data,
+                name_ptbr=form.title_ptbr.data,
                 order=Banners.query.count() + 1,
             )
 

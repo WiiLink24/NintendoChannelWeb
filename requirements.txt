@@ -4,3 +4,4 @@ flask-oidc>=2.2.0
 flask-wtf>=1.0
 pillow>=9
 Flask~=2.2.2
+Flask-Migrate>=4.1.0

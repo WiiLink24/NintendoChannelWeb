@@ -8,7 +8,7 @@
     "bulma": "^0.9.3",
     "bulma-prefers-dark": "^0.1.0-beta.1",
     "bulma-ribbon": "^0.1.1",
-    "esbuild": "^0.14.34"
+    "esbuild": "^0.25.0"
   },
   "scripts": {
     "build": "esbuild --bundle app.css --loader:.ttf=dataurl --loader:.woff2=dataurl --outdir=output/"

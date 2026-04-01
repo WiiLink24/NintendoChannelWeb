@@ -106,6 +106,9 @@ def edit_banner(banner_id):
         if form.thumbnail.data:
             thumbnail_data = form.thumbnail.data.read()
             save_banner_data(banner_id, thumbnail_data)
+        else:
+            flash("Invaild banner")
+            return render_template("banner_action.html", form=form, action="Edit")
 
         banner.name_japanese = form.title_jpn.data
         banner.name_english = form.title_en.data

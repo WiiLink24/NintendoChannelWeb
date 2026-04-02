@@ -50,3 +50,8 @@ class Banners(db.Model):
     name_dutch = db.Column(db.String(102))
     name_ptbr = db.Column(db.String(102))
     order = db.Column(db.Integer)
+    
+class Bookmarks(db.Model):
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True, unique=True)
+    serial_number = db.Column(db.String)
+    game_id = db.Column(db.String(4))

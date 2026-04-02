@@ -1,4 +1,4 @@
-from models import db, TimePlayed, Recommendations
+from models import db, TimePlayed, Recommendations, Bookmarks
 from flask import Response, request, Blueprint
 
 import urllib.parse
@@ -14,6 +14,30 @@ def config():
 
 @cgi_blueprint.post("/6/cgi-bin/bookmark.cgi")
 def bookmark():
+    body = request.data.decode("utf-8") 
+    serial_number = body.split("serialNumber=", 1)[1].split("&", 1)[0]
+    
+    changed = False
+    for encoded_data in body.split("&data=")[1:]:
+        decoded_data = urllib.parse.unquote(encoded_data.split("&", 1)[0])
+        _, game_id, _, action = decoded_data.split(",") # Don't care about timestamp or platform
+        
+        if action.strip() == "1":
+            changed |= db.session.query(Bookmarks).filter_by(
+                serial_number=serial_number,
+                game_id=game_id,
+            ).delete() > 0
+        else:
+            if not db.session.query(Bookmarks).filter_by(
+                serial_number=serial_number,
+                game_id=game_id,
+            ).first():
+                db.session.add(Bookmarks(serial_number=serial_number, game_id=game_id))
+                changed = True
+    
+    if changed:
+        db.session.commit()
+
     resp = Response()
     resp.headers["X-FJHIEK"] = "0"
     resp.headers["X-RESULT"] = "0"

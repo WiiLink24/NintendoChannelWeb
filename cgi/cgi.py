@@ -15,7 +15,7 @@ def config():
 @cgi_blueprint.post("/6/cgi-bin/bookmark.cgi")
 def bookmark():
     body = request.data.decode("utf-8") 
-    serial_number = body.split("serialNumber=", 1)[1].split("&", 1)[0]
+    serial_number=request.form.get("serialNumber")
     
     changed = False
     for encoded_data in body.split("&data=")[1:]:
@@ -83,7 +83,7 @@ def store_time_played():
     """This route sends us the user's entire gameplay history."""
     # First retrieve the serial number from the payload.
     body = request.data.decode("utf-8")
-    serial_number = body.split("serialNumber=")[1].split("&")[0]
+    serial_number=request.form.get("serialNumber")
 
     # Next we retrieve all the titles and their time data
     game_dict = {}

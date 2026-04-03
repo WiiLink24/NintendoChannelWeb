@@ -1,7 +1,7 @@
 from models import db, TimePlayed, Recommendations, Bookmarks
 from flask import Response, request, Blueprint
+from urllib.parse import parse_qs
 
-import urllib.parse
 
 cgi_blueprint = Blueprint("cgi", __name__)
 
@@ -14,13 +14,12 @@ def config():
 
 @cgi_blueprint.post("/6/cgi-bin/bookmark.cgi")
 def bookmark():
-    body = request.data.decode("utf-8") 
-    serial_number=request.form.get("serialNumber")
+    body = parse_qs(request.data.decode("utf-8"))
+    serial_number = body.get("serialNumber", [None])[0]
     
     changed = False
-    for encoded_data in body.split("&data=")[1:]:
-        decoded_data = urllib.parse.unquote(encoded_data.split("&", 1)[0])
-        _, game_id, _, action = decoded_data.split(",") # Don't care about timestamp or platform
+    for encoded_data in body.get("data", []):
+        _, game_id, _, action = encoded_data.split(",") # Don't care about timestamp or platform
         
         if action.strip() == "1":
             changed |= db.session.query(Bookmarks).filter_by(
@@ -82,20 +81,14 @@ def delete_review():
 def store_time_played():
     """This route sends us the user's entire gameplay history."""
     # First retrieve the serial number from the payload.
-    body = request.data.decode("utf-8")
-    serial_number=request.form.get("serialNumber")
+    body = parse_qs(request.data.decode("utf-8"))
+    serial_number = body.get("serialNumber", [None])[0]
 
     # Next we retrieve all the titles and their time data
     game_dict = {}
-    for i, string in enumerate(body.split("&data=")):
-        # Always the metadata
-        if i == 0:
-            continue
-
-        # It is possible for a game ID to not resolve to a proper ID.
-        # In this case it is in a URL Encoded string.
-        game_id = urllib.parse.unquote(string.split("%2C")[0])
-        time_played = time_string_to_minutes(string.split("%2C")[2])
+    for string in body.get("data", []):
+        game_id = string.split(",")[0]
+        time_played = time_string_to_minutes(string.split(",")[2])
 
         try:
             game_dict[game_id][0] += time_played

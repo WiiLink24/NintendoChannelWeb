@@ -1,7 +1,7 @@
-from models import db, TimePlayed, Recommendations
+from models import db, TimePlayed, Recommendations, Bookmarks
 from flask import Response, request, Blueprint
+from urllib.parse import parse_qs
 
-import urllib.parse
 
 cgi_blueprint = Blueprint("cgi", __name__)
 
@@ -14,6 +14,29 @@ def config():
 
 @cgi_blueprint.post("/6/cgi-bin/bookmark.cgi")
 def bookmark():
+    body = parse_qs(request.data.decode("utf-8"))
+    serial_number = body.get("serialNumber", [None])[0]
+    
+    changed = False
+    for encoded_data in body.get("data", []):
+        _, game_id, _, action = encoded_data.split(",") # Don't care about timestamp or platform
+        
+        if action.strip() == "1":
+            changed |= db.session.query(Bookmarks).filter_by(
+                serial_number=serial_number,
+                game_id=game_id,
+            ).delete() > 0
+        else:
+            if not db.session.query(Bookmarks).filter_by(
+                serial_number=serial_number,
+                game_id=game_id,
+            ).first():
+                db.session.add(Bookmarks(serial_number=serial_number, game_id=game_id))
+                changed = True
+    
+    if changed:
+        db.session.commit()
+
     resp = Response()
     resp.headers["X-FJHIEK"] = "0"
     resp.headers["X-RESULT"] = "0"
@@ -58,20 +81,14 @@ def delete_review():
 def store_time_played():
     """This route sends us the user's entire gameplay history."""
     # First retrieve the serial number from the payload.
-    body = request.data.decode("utf-8")
-    serial_number = body.split("serialNumber=")[1].split("&")[0]
+    body = parse_qs(request.data.decode("utf-8"))
+    serial_number = body.get("serialNumber", [None])[0]
 
     # Next we retrieve all the titles and their time data
     game_dict = {}
-    for i, string in enumerate(body.split("&data=")):
-        # Always the metadata
-        if i == 0:
-            continue
-
-        # It is possible for a game ID to not resolve to a proper ID.
-        # In this case it is in a URL Encoded string.
-        game_id = urllib.parse.unquote(string.split("%2C")[0])
-        time_played = time_string_to_minutes(string.split("%2C")[2])
+    for string in body.get("data", []):
+        game_id = string.split(",")[0]
+        time_played = time_string_to_minutes(string.split(",")[2])
 
         try:
             game_dict[game_id][0] += time_played

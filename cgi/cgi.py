@@ -1,3 +1,4 @@
+import cgi.consts
 from models import db, TimePlayed, Recommendations, Bookmarks
 from flask import Response, request, Blueprint
 from urllib.parse import parse_qs
@@ -88,6 +89,9 @@ def store_time_played():
     game_dict = {}
     for string in body.get("data", []):
         game_id = string.split(",")[0]
+        if game_id in cgi.consts.ignore_ids:
+            continue
+
         time_played = time_string_to_minutes(string.split(",")[2])
 
         try:

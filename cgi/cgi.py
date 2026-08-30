@@ -118,8 +118,8 @@ def store_time_played():
 
             db.session.add(db_time_played)
         else:
-            queried_data.times_played = values[1]
-            queried_data.time_played = values[0]
+            queried_data.times_played += values[1]
+            queried_data.time_played += values[0]
 
         db.session.commit()
 

@@ -89,7 +89,12 @@ def store_time_played():
     game_dict = {}
     for string in body.get("data", []):
         game_id = string.split(",")[0]
-        if game_id in cgi.consts.ignore_ids:
+        # Check if game_id is valid (4 character alphanumeric, not a dev title)
+        if (
+            game_id in cgi.consts.ignore_ids
+            or not len(game_id) == 4
+            or not game_id.isalnum()
+        ):
             continue
 
         time_played = time_string_to_minutes(string.split(",")[2])

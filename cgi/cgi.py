@@ -1,4 +1,5 @@
 import cgi.consts
+import datetime
 from models import db, TimePlayed, Recommendations, Bookmarks
 from flask import Response, request, Blueprint
 from urllib.parse import parse_qs
@@ -125,6 +126,7 @@ def store_time_played():
         else:
             queried_data.times_played += values[1]
             queried_data.time_played += values[0]
+            queried_data.last_updated = datetime.datetime.now()
 
         db.session.commit()
 

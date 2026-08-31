@@ -5,6 +5,9 @@ db_url = "postgresql://username:password@localhost/database_name"
 secret_key = "please_change_thank_you"
 debug = False
 
+# Used to secure communications to file generator
+socket_secret = "please_change_thank_you"
+
 # OpenID Connect configuration
 oidc_redirect_uri = "http://localhost:8080/authorize"
 oidc_client_secrets_json = {

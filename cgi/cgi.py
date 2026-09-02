@@ -98,35 +98,52 @@ def store_time_played():
         ):
             continue
 
+        date_played = date_string_to_date(string.split(",")[1])
         time_played = time_string_to_minutes(string.split(",")[2])
 
         try:
-            game_dict[game_id][0] += time_played
-            game_dict[game_id][1] += 1
+            game_dict[game_id].append(
+                {
+                    "time_played": time_played,
+                    "date_played": date_played
+                }
+            )
         except KeyError:
-            game_dict.update({game_id: [time_played, 1]})
+            game_dict.update({game_id: [
+                {
+                    "time_played": time_played,
+                    "date_played": date_played
+                }
+            ]})
 
     # Now we insert into the database
     for game_id, values in game_dict.items():
-        queried_data = (
-            TimePlayed.query.filter_by(serial_number=serial_number)
-            .filter_by(game_id=game_id)
-            .first()
-        )
-
-        if not queried_data:
-            db_time_played = TimePlayed(
-                serial_number=serial_number,
-                game_id=game_id,
-                times_played=values[1],
-                time_played=values[0],
+        for date in values:
+            queried_data = (
+                TimePlayed.query.filter_by(serial_number=serial_number)
+                .filter_by(game_id=game_id)
+                .filter_by(date_played=date["date_played"])
+                .first()
             )
 
-            db.session.add(db_time_played)
-        else:
-            queried_data.times_played += values[1]
-            queried_data.time_played += values[0]
-            queried_data.last_updated = datetime.datetime.now()
+            if queried_data:
+                # Should never happen; Nintendo Channel only sends us data for each date once.
+                # However, people may use Dolphin Emulator with outdated NAND dumps. We should
+                # account for this and save the bigger playtime.
+                if values[0] > queried_data.time_played:
+                    queried_data.time_played = date["time_played"]
+                    queried_data.last_updated = datetime.datetime.now()
+
+            else:
+                db_time_played = TimePlayed(
+                    serial_number=serial_number,
+                    game_id=game_id,
+                    times_played=1,
+                    time_played=date["time_played"],
+                    date_played=date["date_played"]
+                )
+
+                db.session.add(db_time_played)
 
         db.session.commit()
 
@@ -143,6 +160,15 @@ def time_string_to_minutes(time_string: str) -> int:
 
     return hours + minutes
 
+def date_string_to_date(date_string: str) -> datetime.date:
+    """Converts the awkward date string sent by us to a date"""
+    # We only get the last 2 digits of the year, this will be an issue eventually
+    # Hopefully, I won't be around to deal with it
+    year = int(date_string[:2]) + 2000
+    month = int(date_string[2:4]) + 1
+    day = int(date_string[4:6])
+
+    return datetime.date(year, month, day)
 
 @cgi_blueprint.post("/6/cgi-bin/review.cgi")
 def review():

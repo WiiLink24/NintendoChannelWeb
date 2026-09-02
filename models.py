@@ -26,6 +26,7 @@ class TimePlayed(db.Model):
     times_played = db.Column(db.Integer())
     time_played = db.Column(db.Integer())
     last_updated = db.Column(db.DateTime, nullable=False, server_default=func.now())
+    date_played = db.Column(db.Date)
 
 
 class Recommendations(db.Model):

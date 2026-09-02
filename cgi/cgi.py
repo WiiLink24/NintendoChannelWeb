@@ -130,7 +130,7 @@ def store_time_played():
                 # Should never happen; Nintendo Channel only sends us data for each date once.
                 # However, people may use Dolphin Emulator with outdated NAND dumps. We should
                 # account for this and save the bigger playtime.
-                if values[0] > queried_data.time_played:
+                if date["time_played"] > queried_data.time_played:
                     queried_data.time_played = date["time_played"]
                     queried_data.last_updated = datetime.datetime.now()
 

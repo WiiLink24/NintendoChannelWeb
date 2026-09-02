@@ -85,10 +85,23 @@ def store_time_played():
     # First retrieve the serial number from the payload.
     body = parse_qs(request.data.decode("utf-8"))
     serial_number = body.get("serialNumber", [None])[0]
+    data = body.get("data", [])
 
+    # Do simple validation of the request
+    if (
+        len(serial_number) != 24
+        or request.headers.get("User-Agent") != serial_number
+        or body.get("version") != ["0600"]
+        or body.get("dataCount") != [str(len(data))]
+        or body.get("platform") != ["RVL"]
+    ):
+        resp = Response()
+        resp.status_code = 400
+        return resp
+    
     # Next we retrieve all the titles and their time data
     game_dict = {}
-    for string in body.get("data", []):
+    for string in data:
         game_id = string.split(",")[0]
         # Check if game_id is valid (4 character alphanumeric, not a dev title)
         if (

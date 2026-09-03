@@ -1,8 +1,8 @@
-"""Set up migrations
+"""record date with time played
 
-Revision ID: 862433351ed0
-Revises: 
-Create Date: 2026-03-08 13:42:21.528124
+Revision ID: d69578242019
+Revises: a1cab16c8e0c
+Create Date: 2026-09-02 15:42:15.833564
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '862433351ed0'
-down_revision = None
+revision = 'd69578242019'
+down_revision = 'a1cab16c8e0c'
 branch_labels = None
 depends_on = None
 
@@ -21,10 +21,17 @@ def upgrade():
     with op.batch_alter_table('banners', schema=None) as batch_op:
         batch_op.create_unique_constraint(None, ['id'])
 
+    with op.batch_alter_table('bookmarks', schema=None) as batch_op:
+        batch_op.create_unique_constraint(None, ['id'])
+
     with op.batch_alter_table('recommendations', schema=None) as batch_op:
         batch_op.create_unique_constraint(None, ['id'])
 
     with op.batch_alter_table('time_played', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('date_played', sa.Date(), nullable=True))
+        batch_op.create_unique_constraint(None, ['id'])
+
+    with op.batch_alter_table('titles', schema=None) as batch_op:
         batch_op.create_unique_constraint(None, ['id'])
 
     with op.batch_alter_table('videos', schema=None) as batch_op:
@@ -38,15 +45,20 @@ def downgrade():
     with op.batch_alter_table('videos', schema=None) as batch_op:
         batch_op.drop_constraint(None, type_='unique')
 
+    with op.batch_alter_table('titles', schema=None) as batch_op:
+        batch_op.drop_constraint(None, type_='unique')
+
     with op.batch_alter_table('time_played', schema=None) as batch_op:
         batch_op.drop_constraint(None, type_='unique')
+        batch_op.drop_column('date_played')
 
     with op.batch_alter_table('recommendations', schema=None) as batch_op:
         batch_op.drop_constraint(None, type_='unique')
-        batch_op.create_index(batch_op.f('idx_game_id'), ['game_id'], unique=False)
+
+    with op.batch_alter_table('bookmarks', schema=None) as batch_op:
+        batch_op.drop_constraint(None, type_='unique')
 
     with op.batch_alter_table('banners', schema=None) as batch_op:
         batch_op.drop_constraint(None, type_='unique')
-        batch_op.drop_column('order')
 
     # ### end Alembic commands ###

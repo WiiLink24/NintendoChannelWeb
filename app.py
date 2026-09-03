@@ -4,7 +4,7 @@ from cgi.cgi import cgi_blueprint
 from thegateway import thegateway_blueprint
 from werkzeug.serving import WSGIRequestHandler
 from channel_static.main import channel_static_blueprint
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 import config
 import ssl
 
@@ -25,7 +25,7 @@ app.register_blueprint(channel_static_blueprint)
 
 with app.app_context():
     # Ensure our database is present.
-    db.create_all()
+    upgrade()
 
 db.configure_mappers()
 

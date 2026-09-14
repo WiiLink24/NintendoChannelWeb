@@ -1,5 +1,8 @@
 from time import sleep
 import os
+import socket
+import config
+import json
 
 from models import db, Videos
 from flask import (
@@ -18,7 +21,6 @@ from thegateway.admin import oidc
 from thegateway.operations import manage_delete_item
 from werkzeug.utils import redirect
 import threading
-import subprocess
 from werkzeug import exceptions
 from flask_wtf.file import FileRequired
 
@@ -198,19 +200,38 @@ def get_video_thumbnail(movie_id):
 @thegateway_blueprint.post("/thegateway/generate")
 @oidc.require_login
 def generate_videos():
+    def file_generator_socket(arguments: str):
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+            client.connect("/tmp/nc-gen.sock")
+            payload = {
+                "arguments": arguments,
+                "secret": config.socket_secret
+            }
+            payload_raw = json.dumps(payload).encode("utf-8")
+            client.send(payload_raw)
+            resp_raw = client.recv(1024)
+            resp = json.loads(resp_raw.decode("utf-8"))
+            client.close()
+
+        return resp
+
     def actually_generate_videos():
+        generate_status["completed"] = False
+        generate_status["message"] = ""
         message = "Successfully generated thumbnails and videos!"
         # Sleep for a second to give the web app time to process the fact that another user isn't generating.
         sleep(1)
         generate_status["in_progress"] = True
 
         # Generate videos first
-        if subprocess.run(["./cli", "2"]).returncode != 0:
-            message = "Error generating videos."
+        video_resp = file_generator_socket("2")
+        if not video_resp["success"]:
+            message = f"Error generating videos: {video_resp["error"]}"
         else:
             # Now thumbnails
-            if subprocess.run(["./cli", "3"]).returncode != 0:
-                message = "Error generating thumbnails."
+            thumb_resp = file_generator_socket("3")
+            if not thumb_resp["success"]:
+                message = f"Error generating thumbnails: {thumb_resp["error"]}"
 
         generate_status["completed"] = True
         generate_status["message"] = message

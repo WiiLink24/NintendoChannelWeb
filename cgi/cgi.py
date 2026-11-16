@@ -84,7 +84,7 @@ def store_time_played():
     """This route sends us the user's entire gameplay history."""
     # First retrieve the serial number from the payload.
     body = parse_qs(request.data.decode("utf-8"))
-    serial_number = body.get("serialNumber", [None])[0]
+    serial_number = body.get("serialNumber", [""])[0]
     data = body.get("data", [])
 
     # Do simple validation of the request
@@ -102,7 +102,12 @@ def store_time_played():
     # Next we retrieve all the titles and their time data
     game_dict = {}
     for string in data:
-        game_id = string.split(",")[0]
+        parts = string.split(",")
+        if len(parts) != 3:
+            # Invalid data
+            continue
+
+        game_id = parts[0]
         # Check if game_id is valid (4 character alphanumeric, not a dev title)
         if (
             game_id in cgi.consts.ignore_ids
@@ -111,8 +116,8 @@ def store_time_played():
         ):
             continue
 
-        date_played = date_string_to_date(string.split(",")[1])
-        time_played = time_string_to_minutes(string.split(",")[2])
+        date_played = date_string_to_date(parts[1])
+        time_played = time_string_to_minutes(parts[2])
 
         try:
             game_dict[game_id].append(
@@ -129,15 +134,27 @@ def store_time_played():
                 }
             ]})
 
+    if not game_dict:
+        resp = Response()
+        resp.headers["X-FJHIEK"] = "0"
+        resp.headers["X-RESULT"] = "0"
+        return resp
+
+    # Get past records for the IDs in this POST
+    ids_played = list(game_dict.keys())
+    existing_records = TimePlayed.query.filter(
+        TimePlayed.serial_number == serial_number,
+        TimePlayed.game_id.in_(ids_played)
+    ).all()
+
+    existing_dict = {}
+    for record in existing_records:
+        existing_dict[(record.game_id, record.date_played)] = record
+
     # Now we insert into the database
     for game_id, values in game_dict.items():
         for date in values:
-            queried_data = (
-                TimePlayed.query.filter_by(serial_number=serial_number)
-                .filter_by(game_id=game_id)
-                .filter_by(date_played=date["date_played"])
-                .first()
-            )
+            queried_data = existing_dict.get((game_id, date["date_played"]))
 
             if queried_data:
                 # Should never happen; Nintendo Channel only sends us data for each date once.
@@ -158,7 +175,7 @@ def store_time_played():
 
                 db.session.add(db_time_played)
 
-        db.session.commit()
+    db.session.commit()
 
     resp = Response()
     resp.headers["X-FJHIEK"] = "0"

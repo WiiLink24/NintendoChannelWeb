@@ -14,6 +14,7 @@ from thegateway import thegateway_blueprint
 from thegateway.admin import oidc
 from werkzeug.utils import redirect
 from thegateway.form import BannerForm
+from thegateway.generatorsocket import file_generator_socket
 from sqlalchemy import between
 from time import sleep
 import threading
@@ -186,14 +187,16 @@ def get_banner_thumbnail(banner_id):
 @oidc.require_login
 def generate_banners():
     def actually_generate_banners():
+        banner_generate_status["completed"] = False
+        banner_generate_status["message"] = ""
         message = "Successfully generated banners!"
         # Sleep for a second to give the web app time to process the fact that another user isn't generating.
         sleep(1)
         banner_generate_status["in_progress"] = True
 
-        # Generate videos first
-        if subprocess.run(["./cli", "4"]).returncode != 0:
-            message = "Error generating banners."
+        resp = file_generator_socket("4")
+        if not resp["success"]:
+            message = f"Error generating banners: {resp['error']}"
 
         banner_generate_status["completed"] = True
         banner_generate_status["message"] = message
